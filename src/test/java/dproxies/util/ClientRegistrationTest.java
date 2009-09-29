@@ -1,4 +1,4 @@
-package dproxies.handler.impl;
+package dproxies.util;
 
 import java.net.Socket;
 
@@ -8,7 +8,7 @@ import org.mockito.MockitoAnnotations;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
-import dproxies.handler.impl.ClientRegistration;
+import dproxies.util.ClientRegistration;
 
 public class ClientRegistrationTest {
 

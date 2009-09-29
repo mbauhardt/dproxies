@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import dproxies.handler.Handler;
 import dproxies.handler.TuplesWritableHandler;
 import dproxies.tuple.Tuple;
 import dproxies.tuple.TuplesWritable;
@@ -81,6 +82,11 @@ public class InvokeHandler extends TuplesWritableHandler {
     private Map<String, Object> _objectsToCall = new HashMap<String, Object>();
 
     public InvokeHandler(Object[] objectsToCall) {
+	this(null, objectsToCall);
+    }
+
+    public InvokeHandler(Handler<TuplesWritable> prev, Object[] objectsToCall) {
+	super(prev);
 	for (Object object : objectsToCall) {
 	    String name = object.getClass().getInterfaces()[0].getName();
 	    LOG.info("register object: " + object.getClass().getName());
