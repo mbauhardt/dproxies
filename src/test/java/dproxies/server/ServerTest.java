@@ -13,12 +13,13 @@ import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
+import dproxies.Ports;
 import dproxies.handler.impl.ServerHandshakeHandler;
 import dproxies.util.Generator;
 
 public class ServerTest {
 
-    private int _testPort = 2323;
+    private int _testPort = Ports.inc();
 
     private Server _server;
 

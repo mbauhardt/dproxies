@@ -1,16 +1,9 @@
 package dproxies.server;
 
-import java.io.DataInput;
-import java.io.DataInputStream;
-import java.io.DataOutput;
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
-import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -38,6 +31,7 @@ public class Server implements Handler<Integer> {
     }
 
     public void start() throws IOException {
+	LOG.info("start server on port: " + _port);
 	_serverPool.handle(_port);
     }
 
