@@ -1,7 +1,8 @@
-package dproxies.handler.impl;
+package dproxies.client;
 
 import java.io.IOException;
 
+import dproxies.handler.impl.AbstractHandshakeHandler;
 import dproxies.util.Generator;
 
 public class ClientHandshakeHandler extends AbstractHandshakeHandler {

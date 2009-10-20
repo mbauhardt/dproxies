@@ -1,5 +1,7 @@
 package dproxies.handler;
 
+import java.io.IOException;
+
 import org.testng.annotations.Test;
 
 import dproxies.handler.Handler;
@@ -13,10 +15,16 @@ public class PipedHandlerTest {
     class SummandHandler extends TuplesHandler {
 
 	@Override
-	protected boolean doHandle(Tuples t) throws Exception {
+	protected boolean handleSuccess(Tuples t) throws Exception {
 	    t.addTuple(new Tuple<Object>("sum1", new Integer(1)));
 	    t.addTuple(new Tuple<Object>("sum2", new Integer(2)));
 	    return true;
+	}
+
+	@Override
+	protected void handleFailure(Tuples t) throws IOException {
+	    // do nothing
+
 	}
     }
 
@@ -27,13 +35,19 @@ public class PipedHandlerTest {
 	}
 
 	@Override
-	protected boolean doHandle(Tuples t) throws Exception {
+	protected boolean handleSuccess(Tuples t) throws Exception {
 	    Tuple<Object> sum1 = t.getTuple("sum1");
 	    Tuple<Object> sum2 = t.getTuple("sum2");
 	    Integer int1 = (Integer) sum1.getTupleValue();
 	    Integer int2 = (Integer) sum2.getTupleValue();
 	    t.addTuple(new Tuple<Object>("sum", int1 + int2));
 	    return true;
+	}
+
+	@Override
+	protected void handleFailure(Tuples t) throws IOException {
+	    // do nothing
+
 	}
 
     }

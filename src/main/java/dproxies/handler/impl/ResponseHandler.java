@@ -23,7 +23,7 @@ public class ResponseHandler extends TuplesWritableHandler {
     }
 
     @Override
-    protected boolean doHandle(TuplesWritable t) throws Exception {
+    protected boolean handleSuccess(TuplesWritable t) throws Exception {
 	Tuple<Serializable> tupleId = t.getTuple("id");
 	Serializable id = tupleId.getTupleValue();
 	Tuple<Serializable> resultTuple = t.getTuple("result");

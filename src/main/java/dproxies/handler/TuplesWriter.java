@@ -1,5 +1,6 @@
 package dproxies.handler;
 
+import java.io.IOException;
 import java.io.ObjectOutput;
 
 import dproxies.tuple.TuplesWritable;
@@ -18,10 +19,16 @@ public class TuplesWriter extends TuplesWritableHandler {
     }
 
     @Override
-    protected boolean doHandle(TuplesWritable t) throws Exception {
+    protected boolean handleSuccess(TuplesWritable t) throws Exception {
 	t.writeExternal(_out);
 	_out.flush();
 	return true;
+    }
+    
+    @Override
+    protected void handleFailure(TuplesWritable t) throws IOException {
+        super.handleFailure(t);
+        _out.close();
     }
 
 }

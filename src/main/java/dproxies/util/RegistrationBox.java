@@ -41,4 +41,8 @@ public class RegistrationBox<T> {
 	return _queues.containsKey(id);
     }
 
+    @Override
+    public String toString() {
+	return _queues.toString();
+    }
 }

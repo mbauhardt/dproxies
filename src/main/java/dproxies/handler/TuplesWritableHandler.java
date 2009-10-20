@@ -1,5 +1,7 @@
 package dproxies.handler;
 
+import java.io.IOException;
+
 import dproxies.tuple.TuplesWritable;
 
 public abstract class TuplesWritableHandler extends
@@ -13,4 +15,8 @@ public abstract class TuplesWritableHandler extends
 	super(prev);
     }
 
+    @Override
+    protected void handleFailure(TuplesWritable t) throws IOException {
+	// do nothing
+    }
 }

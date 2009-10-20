@@ -7,10 +7,9 @@ import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import dproxies.handler.Handler;
 import dproxies.util.Generator;
 
-public abstract class AbstractHandshakeHandler implements Handler<Socket> {
+public abstract class AbstractHandshakeHandler extends SocketCloseHandler {
 
     private static final Logger LOG = Logger
 	    .getLogger(AbstractHandshakeHandler.class.getName());
@@ -25,14 +24,11 @@ public abstract class AbstractHandshakeHandler implements Handler<Socket> {
 	_generator = generator;
     }
 
-    public boolean handle(Socket socket) throws Exception {
+    public boolean handleSuccess(Socket socket) throws Exception {
 	_in = socket.getInputStream();
 	_out = socket.getOutputStream();
 	boolean doHandshake = doHandshake();
-	if (!doHandshake) {
-	    LOG.warning("overall handshake fails, close the socket.");
-	    socket.close();
-	} else {
+	if (doHandshake) {
 	    LOG.info("overall handshake success.");
 	}
 	return doHandshake;

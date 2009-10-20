@@ -1,4 +1,4 @@
-package dproxies.handler.impl;
+package dproxies.client;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -10,6 +10,7 @@ import org.mockito.MockitoAnnotations;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
+import dproxies.client.ClientHandshakeHandler;
 import dproxies.handler.Handler;
 import dproxies.util.Generator;
 

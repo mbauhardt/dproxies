@@ -1,6 +1,8 @@
 package dproxies.handler;
 
-public abstract class PipedHandler<T> implements Handler<T> {
+import java.io.IOException;
+
+public abstract class PipedHandler<T> extends AbstractHandler<T> {
 
     private final Handler<T> _prev;
 
@@ -8,11 +10,17 @@ public abstract class PipedHandler<T> implements Handler<T> {
 	_prev = prev;
     }
 
-    public boolean handle(T t) throws Exception {
+    @Override
+    protected final boolean doHandle(T t) throws Exception {
 	boolean handle = _prev != null ? _prev.handle(t) : true;
-	return handle ? doHandle(t) : false;
+	return handle ? handleSuccess(t) : fail(t);
     }
 
-    protected abstract boolean doHandle(T t) throws Exception;
+    private boolean fail(T t) throws IOException {
+	handleFailure(t);
+	return false;
+    }
+
+    protected abstract boolean handleSuccess(T t) throws Exception;
 
 }

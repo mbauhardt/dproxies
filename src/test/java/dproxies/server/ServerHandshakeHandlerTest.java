@@ -1,4 +1,4 @@
-package dproxies.handler.impl;
+package dproxies.server;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -11,6 +11,7 @@ import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import dproxies.handler.Handler;
+import dproxies.server.ServerHandshakeHandler;
 import dproxies.util.Generator;
 
 public class ServerHandshakeHandlerTest {
