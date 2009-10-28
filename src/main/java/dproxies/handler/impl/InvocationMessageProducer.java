@@ -8,18 +8,18 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import dproxies.HandlerPool;
-import dproxies.handler.impl.InvokeHandler.InvocationMessage;
+import dproxies.handler.impl.InvocationMessageConsumer.InvocationMessage;
 import dproxies.tuple.Tuple;
 import dproxies.tuple.TuplesWritable;
 import dproxies.util.RegistrationBox;
 
-public class InvocationMessageHandler implements InvocationHandler {
+public class InvocationMessageProducer implements InvocationHandler {
 
     private Random _random;
     private final HandlerPool<TuplesWritable> _threadPool;
     private final RegistrationBox _responseBox;
 
-    public InvocationMessageHandler(RegistrationBox responseBox,
+    public InvocationMessageProducer(RegistrationBox responseBox,
 	    HandlerPool<TuplesWritable> threadPool) {
 	_responseBox = responseBox;
 	_threadPool = threadPool;
@@ -28,7 +28,7 @@ public class InvocationMessageHandler implements InvocationHandler {
 
     public Object invoke(Object proxy, Method method, Object[] args)
 	    throws Throwable {
-	InvocationMessage invocationMessage = new InvokeHandler.InvocationMessage(
+	InvocationMessage invocationMessage = new InvocationMessageConsumer.InvocationMessage(
 		proxy.getClass(), method, args);
 	int id = _random.nextInt();
 	BlockingQueue<Object> queue = _responseBox.register(id);

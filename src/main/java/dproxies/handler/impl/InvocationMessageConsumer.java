@@ -15,7 +15,7 @@ import dproxies.handler.TuplesWritableHandler;
 import dproxies.tuple.Tuple;
 import dproxies.tuple.TuplesWritable;
 
-public class InvokeHandler extends TuplesWritableHandler {
+public class InvocationMessageConsumer extends TuplesWritableHandler {
 
     public static class InvocationMessage implements Externalizable {
 
@@ -76,16 +76,16 @@ public class InvokeHandler extends TuplesWritableHandler {
 
     }
 
-    private static final Logger LOG = Logger.getLogger(InvokeHandler.class
+    private static final Logger LOG = Logger.getLogger(InvocationMessageConsumer.class
 	    .getName());
 
     private Map<String, Object> _objectsToCall = new HashMap<String, Object>();
 
-    public InvokeHandler(Object[] objectsToCall) {
+    public InvocationMessageConsumer(Object[] objectsToCall) {
 	this(null, objectsToCall);
     }
 
-    public InvokeHandler(Handler<TuplesWritable> prev, Object[] objectsToCall) {
+    public InvocationMessageConsumer(Handler<TuplesWritable> prev, Object[] objectsToCall) {
 	super(prev);
 	for (Object object : objectsToCall) {
 	    String name = object.getClass().getInterfaces()[0].getName();

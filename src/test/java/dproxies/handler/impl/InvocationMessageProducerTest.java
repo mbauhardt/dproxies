@@ -7,13 +7,13 @@ import org.testng.annotations.Test;
 
 import dproxies.HandlerPool;
 import dproxies.handler.Handler;
-import dproxies.handler.impl.InvocationMessageHandler;
-import dproxies.handler.impl.InvokeHandler;
+import dproxies.handler.impl.InvocationMessageProducer;
+import dproxies.handler.impl.InvocationMessageConsumer;
 import dproxies.handler.impl.ResponseHandler;
 import dproxies.tuple.TuplesWritable;
 import dproxies.util.RegistrationBox;
 
-public class InvocationMessageHandlerTest {
+public class InvocationMessageProducerTest {
 
     public static interface Foo {
 	String foo();
@@ -32,12 +32,12 @@ public class InvocationMessageHandlerTest {
 	Foo foo = new Bar();
 	Object[] objectsToCall = new Object[] { foo };
 
-	Handler<TuplesWritable> handler = new InvokeHandler(objectsToCall);
+	Handler<TuplesWritable> handler = new InvocationMessageConsumer(objectsToCall);
 	handler = new ResponseHandler(handler, responseBox);
 
 	HandlerPool<TuplesWritable> pool = new HandlerPool<TuplesWritable>(10,
 		handler);
-	InvocationMessageHandler iHandler = new InvocationMessageHandler(
+	InvocationMessageProducer iHandler = new InvocationMessageProducer(
 		responseBox, pool);
 	Foo proxyInstance = (Foo) Proxy.newProxyInstance(Thread.currentThread()
 		.getContextClassLoader(), new Class[] { Foo.class }, iHandler);

@@ -5,12 +5,12 @@ import java.io.Serializable;
 import org.testng.annotations.Test;
 
 import dproxies.handler.Handler;
-import dproxies.handler.impl.InvokeHandler;
-import dproxies.handler.impl.InvokeHandler.InvocationMessage;
+import dproxies.handler.impl.InvocationMessageConsumer;
+import dproxies.handler.impl.InvocationMessageConsumer.InvocationMessage;
 import dproxies.tuple.Tuple;
 import dproxies.tuple.TuplesWritable;
 
-public class InvokeHandlerTest {
+public class InvocationMessageConsumerTest {
 
     static class ResultNotSerializable implements Serializable {
 	private static final long serialVersionUID = 1L;
@@ -43,9 +43,9 @@ public class InvokeHandlerTest {
     @Test
     public void testNoObject() throws Exception {
 	Object[] objectsToCall = new Object[] {};
-	Handler<TuplesWritable> handler = new InvokeHandler(objectsToCall);
+	Handler<TuplesWritable> handler = new InvocationMessageConsumer(objectsToCall);
 	TuplesWritable t = new TuplesWritable();
-	InvocationMessage invocationMessage = new InvokeHandler.InvocationMessage(
+	InvocationMessage invocationMessage = new InvocationMessageConsumer.InvocationMessage(
 		String.class, String.class.getMethod("concat", String.class),
 		new Object[] { " world" });
 	t.addTuple(new Tuple<Serializable>("invocationMessage",
@@ -57,9 +57,9 @@ public class InvokeHandlerTest {
     @Test
     public void testObject() throws Exception {
 	Object[] objectsToCall = new Object[] { "hello" };
-	Handler<TuplesWritable> handler = new InvokeHandler(objectsToCall);
+	Handler<TuplesWritable> handler = new InvocationMessageConsumer(objectsToCall);
 	TuplesWritable t = new TuplesWritable();
-	InvocationMessage invocationMessage = new InvokeHandler.InvocationMessage(
+	InvocationMessage invocationMessage = new InvocationMessageConsumer.InvocationMessage(
 		String.class, String.class.getMethod("concat", String.class),
 		new Object[] { " world" });
 	t.addTuple(new Tuple<Serializable>("invocationMessage",
@@ -73,9 +73,9 @@ public class InvokeHandlerTest {
     @Test
     public void testResultNotSerializable() throws Exception {
 	Object[] objectsToCall = new Object[] { new ResultNotSerializable() };
-	Handler<TuplesWritable> handler = new InvokeHandler(objectsToCall);
+	Handler<TuplesWritable> handler = new InvocationMessageConsumer(objectsToCall);
 	TuplesWritable t = new TuplesWritable();
-	InvocationMessage invocationMessage = new InvokeHandler.InvocationMessage(
+	InvocationMessage invocationMessage = new InvocationMessageConsumer.InvocationMessage(
 		ResultNotSerializable.class, ResultNotSerializable.class
 			.getMethod("foo"), new Object[] {});
 	t.addTuple(new Tuple<Serializable>("invocationMessage",
@@ -87,9 +87,9 @@ public class InvokeHandlerTest {
     @Test
     public void testException() throws Exception {
 	Object[] objectsToCall = new Object[] { new ThrowException() };
-	Handler<TuplesWritable> handler = new InvokeHandler(objectsToCall);
+	Handler<TuplesWritable> handler = new InvocationMessageConsumer(objectsToCall);
 	TuplesWritable t = new TuplesWritable();
-	InvocationMessage invocationMessage = new InvokeHandler.InvocationMessage(
+	InvocationMessage invocationMessage = new InvocationMessageConsumer.InvocationMessage(
 		ThrowException.class, ThrowException.class.getMethod("foo"),
 		new Object[] {});
 	t.addTuple(new Tuple<Serializable>("invocationMessage",
@@ -106,9 +106,9 @@ public class InvokeHandlerTest {
     @Test
     public void testVoid() throws Exception {
 	Object[] objectsToCall = new Object[] { new VoidClass() };
-	Handler<TuplesWritable> handler = new InvokeHandler(objectsToCall);
+	Handler<TuplesWritable> handler = new InvocationMessageConsumer(objectsToCall);
 	TuplesWritable t = new TuplesWritable();
-	InvocationMessage invocationMessage = new InvokeHandler.InvocationMessage(
+	InvocationMessage invocationMessage = new InvocationMessageConsumer.InvocationMessage(
 		VoidClass.class, VoidClass.class.getMethod("foo"),
 		new Object[] {});
 	t.addTuple(new Tuple<Serializable>("invocationMessage",

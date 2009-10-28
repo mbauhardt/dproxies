@@ -6,7 +6,7 @@ import dproxies.tuple.TuplesWritable;
 
 public class TuplesReader extends TuplesWritableHandler {
 
-    private final ObjectInput _in;
+    protected final ObjectInput _in;
 
     public TuplesReader(ObjectInput in) {
 	_in = in;

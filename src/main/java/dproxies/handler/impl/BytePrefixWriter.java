@@ -8,11 +8,13 @@ import dproxies.tuple.TuplesWritable;
 
 public abstract class BytePrefixWriter extends TuplesWriter {
 
-    public static byte REQUEST = 0x01;
+    public static final byte REQUEST = 0x01;
 
-    public static byte RESPONSE = 0x02;
+    public static final byte RESPONSE = 0x02;
 
-    private final byte _type;
+    public static final byte SHUTDOWN = 0x10;
+
+    protected final byte _type;
 
     public BytePrefixWriter(Handler<TuplesWritable> prev, ObjectOutput out,
 	    byte type) {
