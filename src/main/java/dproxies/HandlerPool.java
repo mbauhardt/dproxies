@@ -5,6 +5,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Logger;
 
 import dproxies.handler.Handler;
+import dproxies.log.LogFactory;
 
 public class HandlerPool<T> {
 
@@ -33,8 +34,7 @@ public class HandlerPool<T> {
 
     private BlockingQueue<PooledThread> _threadQueue = new LinkedBlockingQueue<PooledThread>();
     private final Handler<T> _handler;
-    private static final Logger LOG = Logger.getLogger(HandlerPool.class
-	    .getName());
+    private static final Logger LOG = LogFactory.getLogger(HandlerPool.class);
 
     public HandlerPool(int threadCount, Handler<T> handler) {
 	_handler = handler;

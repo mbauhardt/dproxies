@@ -6,6 +6,7 @@ import java.util.logging.Logger;
 
 import dproxies.handler.Handler;
 import dproxies.handler.PipedHandler;
+import dproxies.log.LogFactory;
 
 public abstract class SocketCloseHandler extends PipedHandler<Socket> {
 
@@ -17,8 +18,8 @@ public abstract class SocketCloseHandler extends PipedHandler<Socket> {
 	super(prev);
     }
 
-    private static final Logger LOG = Logger.getLogger(SocketCloseHandler.class
-	    .getName());
+    private static final Logger LOG = LogFactory
+	    .getLogger(SocketCloseHandler.class);
 
     @Override
     protected void handleFailure(Socket socket) throws IOException {

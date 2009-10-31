@@ -12,12 +12,13 @@ import java.util.logging.Logger;
 
 import dproxies.handler.Handler;
 import dproxies.handler.impl.AbstractRegistrationHandler;
+import dproxies.log.LogFactory;
 import dproxies.util.AlreadyRegisteredException;
 
 public class ClientRegistrationHandler extends AbstractRegistrationHandler {
 
-    private static final Logger LOG = Logger
-	    .getLogger(ClientRegistrationHandler.class.getName());
+    private static final Logger LOG = LogFactory
+	    .getLogger(ClientRegistrationHandler.class);
 
     private final String _name;
 

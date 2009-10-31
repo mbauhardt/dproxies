@@ -6,12 +6,13 @@ import java.util.logging.Logger;
 
 import dproxies.HandlerPool;
 import dproxies.handler.impl.BytePrefixWriter;
+import dproxies.log.LogFactory;
 import dproxies.tuple.TuplesWritable;
 
 public class InfiniteReader extends TuplesReader {
 
-    private static final Logger LOG = Logger.getLogger(InfiniteReader.class
-	    .getName());
+    private static final Logger LOG = LogFactory
+	    .getLogger(InfiniteReader.class);
 
     private final HandlerPool<TuplesWritable> _requestPool;
     private final HandlerPool<TuplesWritable> _responsePool;

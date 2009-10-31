@@ -9,10 +9,11 @@ import java.util.logging.Logger;
 
 import dproxies.HandlerPool;
 import dproxies.handler.Handler;
+import dproxies.log.LogFactory;
 
 public class Server implements Handler<Integer> {
 
-    private static final Logger LOG = Logger.getLogger(Server.class.getName());
+    private static final Logger LOG = LogFactory.getLogger(Server.class);
 
     private final int _port;
 

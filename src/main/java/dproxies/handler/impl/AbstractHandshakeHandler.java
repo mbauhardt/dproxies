@@ -7,12 +7,13 @@ import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import dproxies.log.LogFactory;
 import dproxies.util.Generator;
 
 public abstract class AbstractHandshakeHandler extends SocketCloseHandler {
 
-    private static final Logger LOG = Logger
-	    .getLogger(AbstractHandshakeHandler.class.getName());
+    private static final Logger LOG = LogFactory
+	    .getLogger(AbstractHandshakeHandler.class);
 
     private final Generator _generator;
 

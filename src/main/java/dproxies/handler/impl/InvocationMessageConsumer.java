@@ -12,6 +12,7 @@ import java.util.logging.Logger;
 
 import dproxies.handler.Handler;
 import dproxies.handler.TuplesWritableHandler;
+import dproxies.log.LogFactory;
 import dproxies.tuple.Tuple;
 import dproxies.tuple.TuplesWritable;
 
@@ -76,8 +77,8 @@ public class InvocationMessageConsumer extends TuplesWritableHandler {
 
     }
 
-    private static final Logger LOG = Logger.getLogger(InvocationMessageConsumer.class
-	    .getName());
+    private static final Logger LOG = LogFactory
+	    .getLogger(InvocationMessageConsumer.class);
 
     private Map<String, Object> _objectsToCall = new HashMap<String, Object>();
 
@@ -85,7 +86,8 @@ public class InvocationMessageConsumer extends TuplesWritableHandler {
 	this(null, objectsToCall);
     }
 
-    public InvocationMessageConsumer(Handler<TuplesWritable> prev, Object[] objectsToCall) {
+    public InvocationMessageConsumer(Handler<TuplesWritable> prev,
+	    Object[] objectsToCall) {
 	super(prev);
 	for (Object object : objectsToCall) {
 	    String name = object.getClass().getInterfaces()[0].getName();

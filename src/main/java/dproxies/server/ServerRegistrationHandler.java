@@ -10,13 +10,14 @@ import java.util.logging.Logger;
 
 import dproxies.handler.Handler;
 import dproxies.handler.impl.AbstractRegistrationHandler;
+import dproxies.log.LogFactory;
 import dproxies.util.AlreadyRegisteredException;
 import dproxies.util.ClientRegistration;
 
 public class ServerRegistrationHandler extends AbstractRegistrationHandler {
 
-    private static final Logger LOG = Logger
-	    .getLogger(ServerRegistrationHandler.class.getName());
+    private static final Logger LOG = LogFactory
+	    .getLogger(ServerRegistrationHandler.class);
 
     private final ClientRegistration _clientRegistration;
 

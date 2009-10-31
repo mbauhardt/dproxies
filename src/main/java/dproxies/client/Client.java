@@ -8,10 +8,11 @@ import java.util.logging.Logger;
 
 import dproxies.HandlerPool;
 import dproxies.handler.Handler;
+import dproxies.log.LogFactory;
 
 public class Client implements Handler<SocketAddress> {
 
-    private static final Logger LOG = Logger.getLogger(Client.class.getName());
+    private static final Logger LOG = LogFactory.getLogger(Client.class);
 
     private static final int TIMEOUT = 10000;
     private HandlerPool<SocketAddress> _serverPool;
