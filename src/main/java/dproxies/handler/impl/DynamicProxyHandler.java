@@ -71,7 +71,6 @@ public class DynamicProxyHandler<T> extends SocketCloseHandler {
 	Handler<TuplesWritable> infiniteReader = new InfiniteReader(
 		requestPool, responsePool, in);
 	infiniteReader.handle(new TuplesWritable());
-
 	return true;
     }
 
