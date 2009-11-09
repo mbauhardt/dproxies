@@ -6,20 +6,20 @@ import dproxies.handler.Handler;
 import dproxies.handler.TuplesWritableHandler;
 import dproxies.tuple.Tuple;
 import dproxies.tuple.TuplesWritable;
-import dproxies.util.RegistrationBox;
+import dproxies.util.ProxyMethodCallResult;
 
 public class ResponseHandler extends TuplesWritableHandler {
 
-    private final RegistrationBox<Serializable> _responseBox;
+    private ProxyMethodCallResult _box = null;
 
-    public ResponseHandler(RegistrationBox<Serializable> responseBox) {
-	_responseBox = responseBox;
+    public ResponseHandler(ProxyMethodCallResult box) {
+	_box = box;
     }
 
     public ResponseHandler(Handler<TuplesWritable> prev,
-	    RegistrationBox<Serializable> responseBox) {
+	    ProxyMethodCallResult box) {
 	super(prev);
-	_responseBox = responseBox;
+	_box = box;
     }
 
     @Override
@@ -28,7 +28,7 @@ public class ResponseHandler extends TuplesWritableHandler {
 	Serializable id = tupleId.getTupleValue();
 	Tuple<Serializable> resultTuple = t.getTuple("result");
 	Serializable result = resultTuple.getTupleValue();
-	_responseBox.addToBox(id, result);
+	_box.addToBox(id, result);
 	return true;
     }
 

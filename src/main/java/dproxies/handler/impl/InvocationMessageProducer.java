@@ -11,17 +11,17 @@ import dproxies.HandlerPool;
 import dproxies.handler.impl.InvocationMessageConsumer.InvocationMessage;
 import dproxies.tuple.Tuple;
 import dproxies.tuple.TuplesWritable;
-import dproxies.util.RegistrationBox;
+import dproxies.util.ProxyMethodCallResult;
 
 public class InvocationMessageProducer implements InvocationHandler {
 
     private Random _random;
     private final HandlerPool<TuplesWritable> _threadPool;
-    private final RegistrationBox _responseBox;
+    private final ProxyMethodCallResult _box;
 
-    public InvocationMessageProducer(RegistrationBox responseBox,
+    public InvocationMessageProducer(ProxyMethodCallResult box,
 	    HandlerPool<TuplesWritable> threadPool) {
-	_responseBox = responseBox;
+	_box = box;
 	_threadPool = threadPool;
 	_random = new Random(System.currentTimeMillis());
     }
@@ -31,7 +31,7 @@ public class InvocationMessageProducer implements InvocationHandler {
 	InvocationMessage invocationMessage = new InvocationMessageConsumer.InvocationMessage(
 		proxy.getClass(), method, args);
 	int id = _random.nextInt();
-	BlockingQueue<Object> queue = _responseBox.register(id);
+	BlockingQueue<Serializable> queue = _box.register(id);
 
 	TuplesWritable tuplesWritable = new TuplesWritable();
 	tuplesWritable.addTuple(new Tuple<Serializable>("invocationMessage",
@@ -40,7 +40,7 @@ public class InvocationMessageProducer implements InvocationHandler {
 	_threadPool.handle(tuplesWritable);
 
 	Object take = queue.poll(10, TimeUnit.SECONDS);
-	_responseBox.deregister(id);
+	_box.deregister(id);
 	return take;
     }
 

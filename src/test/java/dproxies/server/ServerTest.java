@@ -11,6 +11,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.net.Socket;
 
 import org.testng.annotations.AfterTest;
@@ -19,10 +20,16 @@ import org.testng.annotations.Test;
 
 import dproxies.Ports;
 import dproxies.handler.impl.AbstractRegistrationHandler;
+import dproxies.handler.impl.BytePrefixWriter;
+import dproxies.handler.impl.DynamicProxyHandler;
 import dproxies.handler.impl.AbstractRegistrationHandler.RegistrationRequest;
 import dproxies.handler.impl.AbstractRegistrationHandler.RegistrationResponse;
+import dproxies.handler.impl.InvocationMessageConsumer.InvocationMessage;
+import dproxies.tuple.Tuple;
+import dproxies.tuple.TuplesWritable;
 import dproxies.util.ClientRegistration;
 import dproxies.util.Generator;
+import dproxies.util.ProxyBox;
 
 public class ServerTest {
 
@@ -30,9 +37,13 @@ public class ServerTest {
 
     private int _registrationPort = Ports.inc();
 
+    private int _dynamicProxyPort = Ports.inc();
+
     private Server _server;
 
     private ClientRegistration registration = new ClientRegistration();
+
+    private ProxyBox<Serializable> _proxies = new ProxyBox<Serializable>();
 
     @BeforeTest(groups = { "handshake" })
     public void beforeHandshake() throws IOException {
@@ -48,7 +59,15 @@ public class ServerTest {
 	_server.start();
     }
 
-    @AfterTest(groups = { "handshake", "serverRegistration" })
+    @BeforeTest(groups = { "dynamicProxy" })
+    public void beforeDynamicProxy() throws IOException {
+	_server = new Server(_dynamicProxyPort,
+		new DynamicProxyHandler<Serializable>(Serializable.class,
+			_proxies));
+	_server.start();
+    }
+
+    @AfterTest(groups = { "handshake", "serverRegistration", "dynamicProxy" })
     public void down() throws IOException {
 	_server.stop();
     }
@@ -161,6 +180,54 @@ public class ServerTest {
 	assert "testClientRegistrationFails".equals(response.getName());
 	assert "registration fails 'testClientRegistrationFails'."
 		.equals(response.getMessage());
+    }
+
+    @Test(groups = { "dynamicProxy" })
+    public void testDynamicProxyCall() throws Exception {
+	Socket socket = new Socket("127.0.0.1", _dynamicProxyPort);
+
+	OutputStream outputStream = socket.getOutputStream();
+	ObjectOutput out = new ObjectOutputStream(outputStream);
+	InputStream inputStream = socket.getInputStream();
+	ObjectInput in = new ObjectInputStream(inputStream);
+
+	Thread.sleep(500);
+	Object[] allProxies = _proxies.getAllProxies();
+	assert allProxies.length == 1;
+	final Object proxy = allProxies[0];
+	assert proxy != null;
+
+	Runnable call = new Runnable() {
+	    public void run() {
+		String string = proxy.toString();
+		assert "foo".equals(string);
+	    }
+	};
+	Thread thread = new Thread(call);
+	thread.start();
+
+	Thread.sleep(400);
+	byte readByte = in.readByte();
+	assert BytePrefixWriter.REQUEST == readByte;
+	TuplesWritable tuplesWritable = new TuplesWritable();
+	tuplesWritable.readExternal(in);
+
+	InvocationMessage message = (InvocationMessage) tuplesWritable
+		.getTuple("invocationMessage").getTupleValue();
+	assert 0 == message.getArguments().length;
+	// assert message.getClass().equals(String.class);
+	assert message.getMethod().getName().equals("toString");
+
+	out.writeByte(BytePrefixWriter.RESPONSE);
+	TuplesWritable writable = new TuplesWritable();
+	writable.addTuple(new Tuple<Serializable>("id", tuplesWritable
+		.getTuple("id").getTupleValue()));
+	writable.addTuple(new Tuple<Serializable>("result", "foo"));
+	writable.writeExternal(out);
+	out.flush();
+
+	thread.join();
+
     }
 
     private void writeRequest(Socket socket, String name) throws IOException {

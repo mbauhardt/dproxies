@@ -1,17 +1,13 @@
 package dproxies.handler.impl;
 
-import java.io.Serializable;
 import java.lang.reflect.Proxy;
 
 import org.testng.annotations.Test;
 
 import dproxies.HandlerPool;
 import dproxies.handler.Handler;
-import dproxies.handler.impl.InvocationMessageProducer;
-import dproxies.handler.impl.InvocationMessageConsumer;
-import dproxies.handler.impl.ResponseHandler;
 import dproxies.tuple.TuplesWritable;
-import dproxies.util.RegistrationBox;
+import dproxies.util.ProxyMethodCallResult;
 
 public class InvocationMessageProducerTest {
 
@@ -27,18 +23,19 @@ public class InvocationMessageProducerTest {
 
     @Test
     public void testInvocation() throws Exception {
-	RegistrationBox<Serializable> responseBox = new RegistrationBox<Serializable>();
+	ProxyMethodCallResult box = new ProxyMethodCallResult();
 
 	Foo foo = new Bar();
 	Object[] objectsToCall = new Object[] { foo };
 
-	Handler<TuplesWritable> handler = new InvocationMessageConsumer(objectsToCall);
-	handler = new ResponseHandler(handler, responseBox);
+	Handler<TuplesWritable> handler = new InvocationMessageConsumer(
+		objectsToCall);
+	handler = new ResponseHandler(handler, box);
 
 	HandlerPool<TuplesWritable> pool = new HandlerPool<TuplesWritable>(10,
 		handler);
-	InvocationMessageProducer iHandler = new InvocationMessageProducer(
-		responseBox, pool);
+	InvocationMessageProducer iHandler = new InvocationMessageProducer(box,
+		pool);
 	Foo proxyInstance = (Foo) Proxy.newProxyInstance(Thread.currentThread()
 		.getContextClassLoader(), new Class[] { Foo.class }, iHandler);
 	String result = proxyInstance.foo();

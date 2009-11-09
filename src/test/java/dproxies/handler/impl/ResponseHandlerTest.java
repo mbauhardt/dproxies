@@ -6,19 +6,18 @@ import java.util.concurrent.BlockingQueue;
 import org.testng.annotations.Test;
 
 import dproxies.handler.Handler;
-import dproxies.handler.impl.ResponseHandler;
 import dproxies.tuple.Tuple;
 import dproxies.tuple.TuplesWritable;
-import dproxies.util.RegistrationBox;
+import dproxies.util.ProxyMethodCallResult;
 
 public class ResponseHandlerTest {
 
     @Test
     public void testResult() throws Exception {
-	RegistrationBox<Serializable> responseBox = new RegistrationBox<Serializable>();
+	ProxyMethodCallResult box = new ProxyMethodCallResult();
 	Integer id = new Integer(1);
-	BlockingQueue<Serializable> queue = responseBox.register(id);
-	Handler<TuplesWritable> handler = new ResponseHandler(responseBox);
+	BlockingQueue<Serializable> queue = box.register(id);
+	Handler<TuplesWritable> handler = new ResponseHandler(box);
 
 	TuplesWritable t = new TuplesWritable();
 	t.addTuple(new Tuple<Serializable>("id", id));

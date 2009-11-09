@@ -8,7 +8,7 @@ import java.util.concurrent.BlockingQueue;
 
 public class RegistrationBox<T> {
 
-    private Map<Serializable, BlockingQueue<T>> _queues = new HashMap<Serializable, BlockingQueue<T>>();
+    protected Map<Serializable, BlockingQueue<T>> _queues = new HashMap<Serializable, BlockingQueue<T>>();
 
     public BlockingQueue<T> register(Serializable id)
 	    throws AlreadyRegisteredException {

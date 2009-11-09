@@ -31,7 +31,7 @@ public class InvocationMessageConsumer extends TuplesWritableHandler {
 		Object[] arguments) {
 	    _clazz = clazz;
 	    _method = method;
-	    _arguments = arguments;
+	    _arguments = arguments != null ? arguments : new Object[] {};
 	}
 
 	public void readExternal(ObjectInput input) throws IOException {
