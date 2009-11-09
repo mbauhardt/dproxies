@@ -7,17 +7,17 @@ import org.testng.annotations.Test;
 
 import dproxies.util.AlreadyRegisteredException;
 import dproxies.util.NotRegisteredException;
-import dproxies.util.RegistrationBox;
+import dproxies.util.Box;
 
 public class RegistrationBoxTest {
 
     class ResponseRunnable implements Runnable {
 
-	private final RegistrationBox<Object> _responseBox;
+	private final Box<Object> _responseBox;
 
 	private boolean _exceptionOccurs = false;
 
-	public ResponseRunnable(RegistrationBox<Object> responseBox) {
+	public ResponseRunnable(Box<Object> responseBox) {
 	    _responseBox = responseBox;
 	}
 
@@ -36,11 +36,11 @@ public class RegistrationBoxTest {
 
     class ResponseAgainRunnable implements Runnable {
 
-	private final RegistrationBox<Object> _responseBox;
+	private final Box<Object> _responseBox;
 
 	private boolean _exceptionOccurs = false;
 
-	public ResponseAgainRunnable(RegistrationBox<Object> responseBox) {
+	public ResponseAgainRunnable(Box<Object> responseBox) {
 	    _responseBox = responseBox;
 	}
 
@@ -60,7 +60,7 @@ public class RegistrationBoxTest {
 
     @Test
     public void testRegister() throws Exception {
-	RegistrationBox<Object> responseBox = new RegistrationBox<Object>();
+	Box<Object> responseBox = new Box<Object>();
 	Serializable id = new Integer(1);
 	BlockingQueue<Object> queue = responseBox.register(id);
 	ResponseRunnable responseRunnable = new ResponseRunnable(responseBox);
@@ -72,7 +72,7 @@ public class RegistrationBoxTest {
 
     @Test
     public void testNotRegistered() throws Exception {
-	RegistrationBox<Object> responseBox = new RegistrationBox<Object>();
+	Box<Object> responseBox = new Box<Object>();
 	ResponseRunnable responseRunnable = new ResponseRunnable(responseBox);
 	new Thread(responseRunnable).start();
 	Thread.sleep(1500);
@@ -81,7 +81,7 @@ public class RegistrationBoxTest {
 
     @Test
     public void testRegisterAgain() throws Exception {
-	RegistrationBox<Object> responseBox = new RegistrationBox<Object>();
+	Box<Object> responseBox = new Box<Object>();
 	Serializable id = new Integer(1);
 	responseBox.register(id);
 	try {
@@ -94,7 +94,7 @@ public class RegistrationBoxTest {
 
     @Test
     public void testResponseAgain() throws Exception {
-	RegistrationBox<Object> responseBox = new RegistrationBox<Object>();
+	Box<Object> responseBox = new Box<Object>();
 	Serializable id = new Integer(1);
 	responseBox.register(id);
 	ResponseAgainRunnable responseAgainRunnable = new ResponseAgainRunnable(
@@ -106,7 +106,7 @@ public class RegistrationBoxTest {
 
     @Test
     public void testDeregister() throws Exception {
-	RegistrationBox<Object> responseBox = new RegistrationBox<Object>();
+	Box<Object> responseBox = new Box<Object>();
 	Serializable id = new Integer(1);
 	responseBox.register(id);
 	BlockingQueue<Object> queue = responseBox.deregister(id);
@@ -115,7 +115,7 @@ public class RegistrationBoxTest {
 
     @Test
     public void testDeregisterAgain() throws Exception {
-	RegistrationBox<Object> responseBox = new RegistrationBox<Object>();
+	Box<Object> responseBox = new Box<Object>();
 	Serializable id = new Integer(1);
 	responseBox.register(id);
 	responseBox.deregister(id);
@@ -128,7 +128,7 @@ public class RegistrationBoxTest {
 
     @Test
     public void testRegisterAndDeregister() throws Exception {
-	RegistrationBox<Object> responseBox = new RegistrationBox<Object>();
+	Box<Object> responseBox = new Box<Object>();
 	Serializable id = new Integer(1);
 	responseBox.register(id);
 	BlockingQueue<Object> queue = responseBox.deregister(id);
@@ -140,7 +140,7 @@ public class RegistrationBoxTest {
 
     @Test
     public void testIsRegistered() throws Exception {
-	RegistrationBox<Object> responseBox = new RegistrationBox<Object>();
+	Box<Object> responseBox = new Box<Object>();
 	Serializable id = new Integer(1);
 	responseBox.register(id);
 	assert responseBox.isRegistered(id);

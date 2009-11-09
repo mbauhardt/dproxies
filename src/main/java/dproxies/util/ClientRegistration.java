@@ -6,7 +6,7 @@ import java.net.Socket;
 import java.util.concurrent.BlockingQueue;
 
 
-public class ClientRegistration extends RegistrationBox<Socket> {
+public class ClientRegistration extends Box<Socket> {
 
     public void closeConnection(Serializable id) throws NotRegisteredException,
 	    IOException {

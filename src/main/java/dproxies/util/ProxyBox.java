@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.concurrent.BlockingQueue;
 
-public class ProxyBox<T> extends RegistrationBox<T> {
+public class ProxyBox<T> extends Box<T> {
 
     public Object[] getAllProxies() {
 	Collection<BlockingQueue<T>> values = _queues.values();

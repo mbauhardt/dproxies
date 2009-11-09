@@ -227,7 +227,6 @@ public class ServerTest {
 	out.flush();
 
 	thread.join();
-
     }
 
     private void writeRequest(Socket socket, String name) throws IOException {
