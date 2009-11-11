@@ -25,7 +25,7 @@ public class InfiniteReader extends TuplesReader {
     }
 
     @Override
-    protected boolean handleSuccess(TuplesWritable t) throws Exception {
+    protected boolean handlePreviousSuccess(TuplesWritable t) throws Exception {
 	byte type = 0x00;
 	while ((type = _in.readByte()) > -1) {
 	    if (LOG.isLoggable(Level.FINE)) {
@@ -34,14 +34,14 @@ public class InfiniteReader extends TuplesReader {
 	    // handle type
 	    switch (type) {
 	    case BytePrefixWriter.REQUEST:
-		super.handleSuccess(t);
+		super.handlePreviousSuccess(t);
 		if (LOG.isLoggable(Level.FINE)) {
 		    LOG.fine("handle request: " + t);
 		}
 		_requestPool.handle(t);
 		break;
 	    case BytePrefixWriter.RESPONSE:
-		super.handleSuccess(t);
+		super.handlePreviousSuccess(t);
 		if (LOG.isLoggable(Level.FINE)) {
 		    LOG.fine("handle response: " + t);
 		}

@@ -15,7 +15,7 @@ public class PipedHandlerTest {
     class SummandHandler extends TuplesHandler {
 
 	@Override
-	protected boolean handleSuccess(Tuples t) throws Exception {
+	protected boolean handlePreviousSuccess(Tuples t) throws Exception {
 	    t.addTuple(new Tuple<Object>("sum1", new Integer(1)));
 	    t.addTuple(new Tuple<Object>("sum2", new Integer(2)));
 	    return true;
@@ -35,7 +35,7 @@ public class PipedHandlerTest {
 	}
 
 	@Override
-	protected boolean handleSuccess(Tuples t) throws Exception {
+	protected boolean handlePreviousSuccess(Tuples t) throws Exception {
 	    Tuple<Object> sum1 = t.getTuple("sum1");
 	    Tuple<Object> sum2 = t.getTuple("sum2");
 	    Integer int1 = (Integer) sum1.getTupleValue();

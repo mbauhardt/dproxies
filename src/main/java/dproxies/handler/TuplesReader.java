@@ -18,7 +18,7 @@ public class TuplesReader extends TuplesWritableHandler {
     }
 
     @Override
-    protected boolean handleSuccess(TuplesWritable t) throws Exception {
+    protected boolean handlePreviousSuccess(TuplesWritable t) throws Exception {
 	t.readExternal(_in);
 	return true;
     }

@@ -13,7 +13,7 @@ public abstract class PipedHandler<T> extends AbstractHandler<T> {
     @Override
     protected final boolean doHandle(T t) throws Exception {
 	boolean handle = _prev != null ? _prev.handle(t) : true;
-	return handle ? handleSuccess(t) : fail(t);
+	return handle ? handlePreviousSuccess(t) : fail(t);
     }
 
     private boolean fail(T t) throws IOException {
@@ -21,6 +21,6 @@ public abstract class PipedHandler<T> extends AbstractHandler<T> {
 	return false;
     }
 
-    protected abstract boolean handleSuccess(T t) throws Exception;
+    protected abstract boolean handlePreviousSuccess(T t) throws Exception;
 
 }

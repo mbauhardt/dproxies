@@ -97,7 +97,7 @@ public class InvocationMessageConsumer extends TuplesWritableHandler {
     }
 
     @Override
-    protected boolean handleSuccess(TuplesWritable t) throws Exception {
+    protected boolean handlePreviousSuccess(TuplesWritable t) throws Exception {
 	Tuple<Serializable> invocationTuple = t.getTuple("invocationMessage");
 	InvocationMessage invocationMessage = (InvocationMessage) invocationTuple
 		.getTupleValue();

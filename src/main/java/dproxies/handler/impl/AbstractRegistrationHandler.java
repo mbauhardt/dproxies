@@ -86,7 +86,7 @@ public abstract class AbstractRegistrationHandler extends SocketCloseHandler {
     }
 
     @Override
-    protected final boolean handleSuccess(Socket socket) throws Exception {
+    protected final boolean handlePreviousSuccess(Socket socket) throws Exception {
 	_socket = socket;
 	return doRegistration();
     }

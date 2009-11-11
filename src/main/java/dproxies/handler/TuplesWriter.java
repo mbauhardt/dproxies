@@ -19,7 +19,7 @@ public class TuplesWriter extends TuplesWritableHandler {
     }
 
     @Override
-    protected boolean handleSuccess(TuplesWritable t) throws Exception {
+    protected boolean handlePreviousSuccess(TuplesWritable t) throws Exception {
 	t.writeExternal(_out);
 	_out.flush();
 	return true;

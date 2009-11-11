@@ -25,7 +25,7 @@ public abstract class AbstractHandshakeHandler extends SocketCloseHandler {
 	_generator = generator;
     }
 
-    public boolean handleSuccess(Socket socket) throws Exception {
+    public boolean handlePreviousSuccess(Socket socket) throws Exception {
 	_in = socket.getInputStream();
 	_out = socket.getOutputStream();
 	boolean doHandshake = doHandshake();

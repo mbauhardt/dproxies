@@ -16,7 +16,7 @@ public class ShutdownWriter extends BytePrefixWriter {
     }
 
     @Override
-    protected boolean handleSuccess(TuplesWritable t) throws Exception {
+    protected boolean handlePreviousSuccess(TuplesWritable t) throws Exception {
 	_out.writeByte(_type);
 	_out.close();
 	return true;

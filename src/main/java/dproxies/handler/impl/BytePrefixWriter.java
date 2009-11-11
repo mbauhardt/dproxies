@@ -28,9 +28,9 @@ public abstract class BytePrefixWriter extends TuplesWriter {
     }
 
     @Override
-    protected boolean handleSuccess(TuplesWritable t) throws Exception {
+    protected boolean handlePreviousSuccess(TuplesWritable t) throws Exception {
 	_out.writeByte(_type);
-	return super.handleSuccess(t);
+	return super.handlePreviousSuccess(t);
     }
 
 }

@@ -33,7 +33,7 @@ public class DynamicProxyHandler<T> extends SocketCloseHandler {
 
     @SuppressWarnings("unchecked")
     @Override
-    protected boolean handleSuccess(Socket socket) throws Exception {
+    protected boolean handlePreviousSuccess(Socket socket) throws Exception {
 
 	// create in
 	InputStream inputStream = socket.getInputStream();
