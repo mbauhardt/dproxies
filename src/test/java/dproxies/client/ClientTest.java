@@ -11,6 +11,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -20,8 +21,13 @@ import org.testng.annotations.Test;
 
 import dproxies.Ports;
 import dproxies.handler.impl.AbstractRegistrationHandler;
+import dproxies.handler.impl.BytePrefixWriter;
+import dproxies.handler.impl.InvocationMessageConsumer;
 import dproxies.handler.impl.AbstractRegistrationHandler.RegistrationRequest;
 import dproxies.handler.impl.AbstractRegistrationHandler.RegistrationResponse;
+import dproxies.handler.impl.InvocationMessageConsumer.InvocationMessage;
+import dproxies.tuple.Tuple;
+import dproxies.tuple.TuplesWritable;
 import dproxies.util.Generator;
 
 public class ClientTest {
@@ -30,12 +36,12 @@ public class ClientTest {
     private ServerSocket _serverSocket;
     private Socket _socket;
 
-    @BeforeTest(groups = { "handshake", "registration" })
+    @BeforeTest(groups = { "handshake", "registration", "objectCall" })
     public void beforeHandshake() throws IOException {
 	_serverSocket = new ServerSocket(_testPort);
     }
 
-    @AfterTest(groups = { "handshake", "registration" })
+    @AfterTest(groups = { "handshake", "registration", "objectCall" })
     public void down() throws IOException {
 	_serverSocket.close();
     }
@@ -163,6 +169,39 @@ public class ClientTest {
 	response.writeExternal(out);
 
 	assert request.getName().equals("foo");
+    }
+
+    @Test(groups = { "objectCall" })
+    public void testObjectCall() throws Exception {
+	Client client = new Client("127.0.0.1", _testPort,
+		new ObjectCallHandler<String>("foo"));
+	client.start();
+	_socket = _serverSocket.accept();
+
+	OutputStream outputStream = _socket.getOutputStream();
+	ObjectOutput out = new ObjectOutputStream(outputStream);
+	InputStream inputStream = _socket.getInputStream();
+	ObjectInput in = new ObjectInputStream(inputStream);
+
+	out.writeByte(BytePrefixWriter.REQUEST);
+	InvocationMessage invocationMessage = new InvocationMessageConsumer.InvocationMessage(
+		String.class, String.class.getMethod("toString"),
+		new Object[] {});
+	TuplesWritable requestTuple = new TuplesWritable();
+	requestTuple.addTuple(new Tuple<Serializable>("id", "myId"));
+	requestTuple.addTuple(new Tuple<Serializable>("invocationMessage",
+		invocationMessage));
+	requestTuple.writeExternal(out);
+	out.flush();
+
+	byte readByte = in.readByte();
+	assert readByte == BytePrefixWriter.RESPONSE;
+	TuplesWritable tuplesWritable = new TuplesWritable();
+	tuplesWritable.readExternal(in);
+	Serializable tupleValue = tuplesWritable.getTuple("id").getTupleValue();
+	assert tupleValue.equals("myId");
+	tupleValue = tuplesWritable.getTuple("result").getTupleValue();
+	assert tupleValue.equals("foo");
 
     }
 

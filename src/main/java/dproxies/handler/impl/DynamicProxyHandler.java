@@ -70,8 +70,7 @@ public class DynamicProxyHandler<T> extends SocketCloseHandler {
 		10, responseHandler);
 	Handler<TuplesWritable> infiniteReader = new InfiniteReader(
 		requestPool, responsePool, in);
-	infiniteReader.handle(new TuplesWritable());
-	return true;
+	return infiniteReader.handle(new TuplesWritable());
     }
 
 }
