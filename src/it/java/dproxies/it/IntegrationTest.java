@@ -11,19 +11,19 @@ import dproxies.util.HandlerChainFactory;
 
 public class IntegrationTest {
 
-    public static interface One {
-	int one();
+    public static interface TestNumber {
+	int getNumber();
     }
 
-    public static class Two implements One {
+    public static class TestNumberImpl implements TestNumber {
 
 	private final int _number;
 
-	public Two(int number) {
+	public TestNumberImpl(int number) {
 	    _number = number;
 	}
 
-	public int one() {
+	public int getNumber() {
 	    return _number;
 	}
 
@@ -33,9 +33,9 @@ public class IntegrationTest {
 
     @Test
     public void testRealWorld() throws Exception {
-	assert One.class.isAssignableFrom(Two.class);
-	HandlerChainFactory<One> factory = new HandlerChainFactory<One>(
-		One.class, new Two(23));
+	assert TestNumber.class.isAssignableFrom(TestNumberImpl.class);
+	HandlerChainFactory<TestNumber> factory = new HandlerChainFactory<TestNumber>(
+		TestNumber.class, new TestNumberImpl(23));
 
 	// server
 	Handler<Tuples> serverDefaultHandlerChain = factory
@@ -56,8 +56,8 @@ public class IntegrationTest {
 
 	Object[] allProxies = server.getAllProxies();
 	assert 1 == allProxies.length;
-	One one = (One) allProxies[0];
-	assert 23 == one.one();
+	TestNumber number = (TestNumber) allProxies[0];
+	assert 23 == number.getNumber();
 
     }
 }

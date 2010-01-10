@@ -2,8 +2,6 @@ package dproxies.server;
 
 import java.io.DataInput;
 import java.io.DataOutput;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.Socket;
 
 import org.mockito.Mock;
@@ -12,8 +10,6 @@ import org.mockito.MockitoAnnotations;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
-import dproxies.handler.Handler;
-import dproxies.handler.impl.IOHandler;
 import dproxies.tuple.Tuple;
 import dproxies.tuple.Tuples;
 import dproxies.util.Generator;

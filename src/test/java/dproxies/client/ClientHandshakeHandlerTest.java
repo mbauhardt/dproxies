@@ -2,9 +2,6 @@ package dproxies.client;
 
 import java.io.DataInput;
 import java.io.DataOutput;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.Socket;
 
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -12,16 +9,12 @@ import org.mockito.MockitoAnnotations;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
-import dproxies.client.ClientHandshakeHandler;
 import dproxies.handler.Handler;
 import dproxies.tuple.Tuple;
 import dproxies.tuple.Tuples;
 import dproxies.util.Generator;
 
 public class ClientHandshakeHandlerTest {
-
-    @Mock
-    private Socket _socket;
 
     @Mock
     private DataInput _in;
