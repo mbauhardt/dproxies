@@ -15,10 +15,12 @@ import org.testng.annotations.Test;
 
 import dproxies.Ports;
 import dproxies.handler.Handler;
+import dproxies.handler.impl.AbstractHandshakeHandler;
 import dproxies.handler.impl.AbstractRegistrationHandler;
 import dproxies.handler.impl.BytePrefixWriter;
 import dproxies.handler.impl.DynamicProxyHandler;
 import dproxies.handler.impl.IOHandler;
+import dproxies.handler.impl.AbstractHandshakeHandler.Handshake;
 import dproxies.handler.impl.AbstractRegistrationHandler.RegistrationRequest;
 import dproxies.handler.impl.AbstractRegistrationHandler.RegistrationResponse;
 import dproxies.handler.impl.InvocationMessageConsumer.InvocationMessage;
@@ -59,7 +61,7 @@ public class ServerTest {
     }
 
     @Test(dataProvider = "handshake")
-    public void testSuccessfullyHandshake(Integer port, Handler handler)
+    public void testHandshake_success(Integer port, Handler handler)
 	    throws Exception {
 	Server server = new Server(port, handler);
 	try {
@@ -68,29 +70,18 @@ public class ServerTest {
 
 	    Socket socket = new Socket("127.0.0.1", port);
 
-	    // client handshake
 	    OutputStream outputStream = socket.getOutputStream();
 	    DataOutput out = new DataOutputStream(outputStream);
 	    InputStream inputStream = socket.getInputStream();
 	    DataInput in = new DataInputStream(inputStream);
 
-	    // send
-	    byte clientByte = 0x01;
-	    out.writeByte(clientByte);
-
-	    // receive
-	    byte testByte = in.readByte();
-	    assert clientByte == testByte;
-
-	    // send client success
-	    out.writeByte(Byte.MAX_VALUE);
-
-	    // server handshake
-	    // read
-	    byte serverByte = in.readByte();
-	    out.writeByte(serverByte);
-	    byte serverOk = in.readByte();
-	    assert serverOk == Byte.MAX_VALUE;
+	    Handshake handshake = new AbstractHandshakeHandler.Handshake();
+	    handshake.read(in);
+	    byte[] bytes = handshake.getBytes();
+	    int index = handshake.getIndex();
+	    int newIndex = index >= (bytes.length - 1) ? 0 : index + 1;
+	    out.write(bytes[newIndex]);
+	    assert in.readBoolean();
 
 	} catch (Exception e) {
 	    e.printStackTrace();
@@ -101,7 +92,7 @@ public class ServerTest {
     }
 
     @Test(dataProvider = "handshake")
-    public void testClientHandshakeFails(Integer port, Handler handler)
+    public void testHandshake_fails(Integer port, Handler handler)
 	    throws Exception {
 	Server server = new Server(port, handler);
 	try {
@@ -116,58 +107,13 @@ public class ServerTest {
 	    InputStream inputStream = socket.getInputStream();
 	    DataInput in = new DataInputStream(inputStream);
 
-	    // send
-	    byte clientByte = 0x01;
-	    out.writeByte(clientByte);
-
-	    // receive
-	    byte testByte = in.readByte();
-	    assert clientByte == testByte;
-
-	    // send client failure
-	    out.writeByte(Byte.MIN_VALUE);
-
-	} catch (Exception e) {
-	    e.printStackTrace();
-	    assert false;
-	} finally {
-	    server.stop();
-	}
-    }
-
-    @Test(dataProvider = "handshake")
-    public void testHandshakeFails(Integer port, Handler handler)
-	    throws Exception {
-	Server server = new Server(port, handler);
-	try {
-	    server.start();
-	    Thread.sleep(500);
-
-	    Socket socket = new Socket("127.0.0.1", port);
-
-	    // client handshake
-	    OutputStream outputStream = socket.getOutputStream();
-	    DataOutput out = new DataOutputStream(outputStream);
-	    InputStream inputStream = socket.getInputStream();
-	    DataInput in = new DataInputStream(inputStream);
-
-	    // send
-	    byte clientByte = 0x01;
-	    out.writeByte(clientByte);
-
-	    // receive
-	    byte testByte = in.readByte();
-	    assert clientByte == testByte;
-
-	    // send client success
-	    out.writeByte(Byte.MAX_VALUE);
-
-	    // server handshake
-	    // read
-	    byte serverByte = in.readByte();
-	    out.writeByte(serverByte + 1);
-	    byte serverOk = in.readByte();
-	    assert serverOk == Byte.MIN_VALUE;
+	    Handshake handshake = new AbstractHandshakeHandler.Handshake();
+	    handshake.read(in);
+	    byte[] bytes = handshake.getBytes();
+	    int index = handshake.getIndex();
+	    int newIndex = index >= (bytes.length - 1) ? 0 : index;
+	    out.write(bytes[newIndex]);
+	    assert !in.readBoolean();
 
 	} catch (Exception e) {
 	    e.printStackTrace();
@@ -178,7 +124,7 @@ public class ServerTest {
     }
 
     @Test(dataProvider = "registration")
-    public void testSuccessfullyRegistration(Integer port, Handler handler)
+    public void testRegistration_success(Integer port, Handler handler)
 	    throws Exception {
 	Server server = new Server(port, handler);
 	try {
@@ -202,7 +148,7 @@ public class ServerTest {
     }
 
     @Test(dataProvider = "registration")
-    public void testClientRegistrationFails(Integer port, Handler handler)
+    public void testRegistration_fails(Integer port, Handler handler)
 	    throws Exception {
 	Server server = new Server(port, handler);
 	try {

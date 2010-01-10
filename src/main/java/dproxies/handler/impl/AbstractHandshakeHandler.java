@@ -3,20 +3,77 @@ package dproxies.handler.impl;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.Arrays;
 
 import dproxies.handler.Handler;
-import dproxies.log.LogFactory;
 import dproxies.tuple.Tuples;
+import dproxies.tuple.Writable;
 import dproxies.util.Generator;
 
 public abstract class AbstractHandshakeHandler extends SocketCloseHandler {
 
-    private static final Logger LOG = LogFactory
-	    .getLogger(AbstractHandshakeHandler.class);
+    public static class Handshake implements Writable {
 
-    private final Generator _generator;
+	private byte[] _bytes;
+	private int _index;
+
+	public Handshake(byte[] bytes, int index) {
+	    _bytes = bytes;
+	    _index = index;
+	}
+
+	public Handshake() {
+	}
+
+	public byte[] getBytes() {
+	    return _bytes;
+	}
+
+	public int getIndex() {
+	    return _index;
+	}
+
+	public void read(DataInput in) throws IOException {
+	    int length = in.readInt();
+	    _bytes = new byte[length];
+	    in.readFully(_bytes);
+	    _index = in.readInt();
+	}
+
+	public void write(DataOutput out) throws IOException {
+	    out.writeInt(_bytes.length);
+	    out.write(_bytes);
+	    out.writeInt(_index);
+	}
+
+	@Override
+	public int hashCode() {
+	    final int prime = 31;
+	    int result = 1;
+	    result = prime * result + Arrays.hashCode(_bytes);
+	    result = prime * result + _index;
+	    return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+	    if (this == obj)
+		return true;
+	    if (obj == null)
+		return false;
+	    if (getClass() != obj.getClass())
+		return false;
+	    Handshake other = (Handshake) obj;
+	    if (!Arrays.equals(_bytes, other._bytes))
+		return false;
+	    if (_index != other._index)
+		return false;
+	    return true;
+	}
+
+    }
+
+    protected final Generator _generator;
 
     protected DataInput _in;
 
@@ -31,39 +88,4 @@ public abstract class AbstractHandshakeHandler extends SocketCloseHandler {
 	_generator = generator;
     }
 
-    public boolean handlePreviousSuccess(Tuples tuples) throws Exception {
-	_in = (DataInput) tuples.getTuple("in").getTupleValue();
-	_out = (DataOutput) tuples.getTuple("out").getTupleValue();
-	boolean doHandshake = doHandshake();
-	if (doHandshake) {
-	    LOG.info("overall handshake success.");
-	}
-	return doHandshake;
-    }
-
-    protected abstract boolean doHandshake() throws IOException;
-
-    protected boolean handleHandshake() throws IOException {
-	byte aByte = _in.readByte();
-	_out.write(aByte);
-	aByte = _in.readByte();
-	boolean verify = aByte == Byte.MAX_VALUE;
-	LOG.log(verify ? Level.INFO : Level.WARNING,
-		"handle handshake success? [" + verify + "]");
-	return verify;
-    }
-
-    protected boolean startHandshake() throws IOException {
-	byte aByte = _generator.generate();
-	_out.write(aByte);
-	byte callbackByte = _in.readByte();
-	byte verifyByte = aByte == callbackByte ? Byte.MAX_VALUE
-		: Byte.MIN_VALUE;
-	_out.write(verifyByte);
-	boolean verify = verifyByte == Byte.MAX_VALUE;
-	LOG.log(verify ? Level.INFO : Level.WARNING,
-		"start handshake success? [" + verify + "]");
-	return verify;
-
-    }
 }

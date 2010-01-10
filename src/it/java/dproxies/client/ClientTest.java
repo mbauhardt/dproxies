@@ -17,10 +17,12 @@ import org.testng.annotations.Test;
 
 import dproxies.Ports;
 import dproxies.handler.Handler;
+import dproxies.handler.impl.AbstractHandshakeHandler;
 import dproxies.handler.impl.AbstractRegistrationHandler;
 import dproxies.handler.impl.BytePrefixWriter;
 import dproxies.handler.impl.IOHandler;
 import dproxies.handler.impl.InvocationMessageConsumer;
+import dproxies.handler.impl.AbstractHandshakeHandler.Handshake;
 import dproxies.handler.impl.AbstractRegistrationHandler.RegistrationRequest;
 import dproxies.handler.impl.AbstractRegistrationHandler.RegistrationResponse;
 import dproxies.handler.impl.InvocationMessageConsumer.InvocationMessage;
@@ -46,7 +48,7 @@ public class ClientTest {
     }
 
     @Test(groups = { "handshake" })
-    public void testSuccessfullyHandshake() throws Exception {
+    public void testHandshake_success() throws Exception {
 	// client handshake
 	Handler<Tuples> handler = new IOHandler();
 	handler = new ClientHandshakeHandler(handler, new Generator());
@@ -59,23 +61,21 @@ public class ClientTest {
 	InputStream inputStream = _socket.getInputStream();
 	DataInput in = new DataInputStream(inputStream);
 
+	// send handshake
+	Handshake handshake = new AbstractHandshakeHandler.Handshake(
+		new byte[] { 1, 2, 3 }, 1);
+	handshake.write(out);
+
 	// receive
-	byte clientByte = in.readByte();
-	out.writeByte(clientByte);
 	byte callbackByte = in.readByte();
-	assert callbackByte == Byte.MAX_VALUE;
+	assert callbackByte == 3;
 
-	// send
-	byte serverByte = 0x01;
-	out.writeByte(serverByte);
-	callbackByte = in.readByte();
-	assert serverByte == callbackByte;
-
-	out.writeByte(Byte.MAX_VALUE);
+	// write success
+	out.writeBoolean(true);
     }
 
     @Test(groups = { "handshake" })
-    public void testServerHandshakeFails() throws Exception {
+    public void testHandshake_fails() throws Exception {
 	// client handshake
 	Handler<Tuples> handler = new IOHandler();
 	handler = new ClientHandshakeHandler(handler, new Generator());
@@ -88,40 +88,17 @@ public class ClientTest {
 	InputStream inputStream = _socket.getInputStream();
 	DataInput in = new DataInputStream(inputStream);
 
-	// receive
-	byte clientByte = in.readByte();
-	out.writeByte(clientByte + 1);
-	byte callbackByte = in.readByte();
-	assert callbackByte == Byte.MIN_VALUE;
-    }
-
-    @Test(groups = { "handshake" })
-    public void testClientHandshakeFails() throws Exception {
-	// client handshake
-	Handler<Tuples> handler = new IOHandler();
-	handler = new ClientHandshakeHandler(handler, new Generator());
-	Client client = new Client("127.0.0.1", _testPort, handler);
-	client.start();
-	_socket = _serverSocket.accept();
-
-	OutputStream outputStream = _socket.getOutputStream();
-	DataOutput out = new DataOutputStream(outputStream);
-	InputStream inputStream = _socket.getInputStream();
-	DataInput in = new DataInputStream(inputStream);
+	// send handshake
+	Handshake handshake = new AbstractHandshakeHandler.Handshake(
+		new byte[] { 1, 2, 3 }, 1);
+	handshake.write(out);
 
 	// receive
-	byte clientByte = in.readByte();
-	out.writeByte(clientByte);
 	byte callbackByte = in.readByte();
-	assert callbackByte == Byte.MAX_VALUE;
+	assert callbackByte == 3;
 
-	// send
-	byte serverByte = 0x01;
-	out.writeByte(serverByte);
-	callbackByte = in.readByte();
-	assert serverByte == callbackByte;
-
-	out.writeByte(Byte.MIN_VALUE);
+	// write success
+	out.writeBoolean(false);
     }
 
     @Test(groups = { "registration" })

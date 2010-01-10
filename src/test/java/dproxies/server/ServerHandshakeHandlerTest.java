@@ -37,8 +37,14 @@ public class ServerHandshakeHandlerTest {
     public void testHandshake() throws Exception {
 	ServerHandshakeHandler handler = new ServerHandshakeHandler(_generator);
 
-	Mockito.when(_in.readByte()).thenReturn(Byte.MAX_VALUE);
-	Mockito.when(_generator.generate()).thenReturn(Byte.MAX_VALUE);
+	byte[] bytes = new byte[23];
+	for (int i = 0; i < bytes.length; i++) {
+	    bytes[i] = (byte) i;
+	}
+	Mockito.when(_generator.generateByteArray(23)).thenReturn(bytes);
+	Mockito.when(_generator.generateInt(bytes.length)).thenReturn(3);
+	Mockito.when(_in.readInt()).thenReturn(4);
+	Mockito.when(_in.readByte()).thenReturn(bytes[4]);
 
 	Tuples tuples = new Tuples();
 	tuples.addTuple(new Tuple<Object>("socket", _socket));
@@ -46,8 +52,9 @@ public class ServerHandshakeHandlerTest {
 	tuples.addTuple(new Tuple<Object>("out", _out));
 	boolean handle = handler.handle(tuples);
 
-	Mockito.verify(_in, Mockito.times(3)).readByte();
-	Mockito.verify(_out, Mockito.times(3)).write(Byte.MAX_VALUE);
+	Mockito.verify(_out, Mockito.times(1)).writeInt(bytes.length);
+	Mockito.verify(_out, Mockito.times(1)).writeInt(3);
+	Mockito.verify(_in, Mockito.times(1)).readByte();
 	assert handle;
     }
 }

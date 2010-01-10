@@ -34,16 +34,16 @@ public class ClientHandshakeHandlerTest {
     public void testHandshake() throws Exception {
 	Handler<Tuples> handler = new ClientHandshakeHandler(_generator);
 
-	Mockito.when(_in.readByte()).thenReturn(Byte.MAX_VALUE);
-	Mockito.when(_generator.generate()).thenReturn(Byte.MAX_VALUE);
+	Mockito.when(_in.readInt()).thenReturn(3);
+	Mockito.when(_in.readBoolean()).thenReturn(true);
 
 	Tuples tuples = new Tuples();
 	tuples.addTuple(new Tuple<Object>("in", _in));
 	tuples.addTuple(new Tuple<Object>("out", _out));
 	boolean handle = handler.handle(tuples);
 
-	Mockito.verify(_in, Mockito.times(3)).readByte();
-	Mockito.verify(_out, Mockito.times(3)).write(Byte.MAX_VALUE);
+	Mockito.verify(_in, Mockito.times(2)).readInt();
+	Mockito.verify(_in, Mockito.times(1)).readBoolean();
 	assert handle;
     }
 }

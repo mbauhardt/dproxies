@@ -1,4 +1,4 @@
-package dproxies.it;
+package dproxies.example;
 
 import org.testng.annotations.Test;
 
@@ -9,7 +9,7 @@ import dproxies.server.Server;
 import dproxies.tuple.Tuples;
 import dproxies.util.HandlerChainFactory;
 
-public class IntegrationTest {
+public class ExampleTest {
 
     public static interface TestNumber {
 	int getNumber();
