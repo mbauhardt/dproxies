@@ -1,6 +1,6 @@
 package dproxies.handler;
 
-import java.io.ObjectInput;
+import java.io.DataInput;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -18,7 +18,7 @@ public class InfiniteReader extends TuplesReader {
     private final HandlerPool<TuplesWritable> _responsePool;
 
     public InfiniteReader(HandlerPool<TuplesWritable> requestPool,
-	    HandlerPool<TuplesWritable> responsePool, ObjectInput in) {
+	    HandlerPool<TuplesWritable> responsePool, DataInput in) {
 	super(in);
 	_requestPool = requestPool;
 	_responsePool = responsePool;
@@ -51,7 +51,7 @@ public class InfiniteReader extends TuplesReader {
 		if (LOG.isLoggable(Level.INFO)) {
 		    LOG.info("receive shutdown, close input.");
 		}
-		_in.close();
+		// TODO shutdown
 	    default:
 		return true;
 	    }

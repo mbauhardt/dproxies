@@ -1,17 +1,18 @@
 package dproxies.handler.impl;
 
-import java.io.Externalizable;
+import java.io.DataInput;
+import java.io.DataOutput;
 import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
 import java.net.Socket;
 
 import dproxies.handler.Handler;
+import dproxies.tuple.Tuples;
+import dproxies.tuple.Writable;
 import dproxies.util.AlreadyRegisteredException;
 
 public abstract class AbstractRegistrationHandler extends SocketCloseHandler {
 
-    public static class RegistrationRequest implements Externalizable {
+    public static class RegistrationRequest implements Writable {
 
 	private String _name = "nobody";
 
@@ -26,14 +27,12 @@ public abstract class AbstractRegistrationHandler extends SocketCloseHandler {
 	    return _name;
 	}
 
-	public void readExternal(ObjectInput in) throws IOException,
-		ClassNotFoundException {
+	public void read(DataInput in) throws IOException {
 	    _name = in.readUTF();
 	}
 
-	public void writeExternal(ObjectOutput out) throws IOException {
+	public void write(DataOutput out) throws IOException {
 	    out.writeUTF(_name);
-	    out.flush();
 	}
 
     }
@@ -62,32 +61,35 @@ public abstract class AbstractRegistrationHandler extends SocketCloseHandler {
 	}
 
 	@Override
-	public void readExternal(ObjectInput in) throws IOException,
-		ClassNotFoundException {
-	    super.readExternal(in);
+	public void read(DataInput in) throws IOException {
+	    super.read(in);
 	    _message = in.readUTF();
 	    _registered = in.readBoolean();
 	}
 
 	@Override
-	public void writeExternal(ObjectOutput out) throws IOException {
-	    super.writeExternal(out);
+	public void write(DataOutput out) throws IOException {
+	    super.write(out);
 	    out.writeUTF(_message);
 	    out.writeBoolean(_registered);
-	    out.flush();
 	}
 
     }
 
+    protected DataInput _in;
+    protected DataOutput _out;
     protected Socket _socket;
 
-    public AbstractRegistrationHandler(Handler<Socket> prev) {
+    public AbstractRegistrationHandler(Handler<Tuples> prev) {
 	super(prev);
     }
 
     @Override
-    protected final boolean handlePreviousSuccess(Socket socket) throws Exception {
-	_socket = socket;
+    protected final boolean handlePreviousSuccess(Tuples tuples)
+	    throws Exception {
+	_socket = (Socket) tuples.getTuple("socket").getTupleValue();
+	_in = (DataInput) tuples.getTuple("in").getTupleValue();
+	_out = (DataOutput) tuples.getTuple("out").getTupleValue();
 	return doRegistration();
     }
 

@@ -43,7 +43,8 @@ public class InvocationMessageConsumerTest {
     @Test
     public void testNoObject() throws Exception {
 	Object[] objectsToCall = new Object[] {};
-	Handler<TuplesWritable> handler = new InvocationMessageConsumer(objectsToCall);
+	Handler<TuplesWritable> handler = new InvocationMessageConsumer(
+		objectsToCall);
 	TuplesWritable t = new TuplesWritable();
 	InvocationMessage invocationMessage = new InvocationMessageConsumer.InvocationMessage(
 		String.class, String.class.getMethod("concat", String.class),
@@ -57,7 +58,8 @@ public class InvocationMessageConsumerTest {
     @Test
     public void testObject() throws Exception {
 	Object[] objectsToCall = new Object[] { "hello" };
-	Handler<TuplesWritable> handler = new InvocationMessageConsumer(objectsToCall);
+	Handler<TuplesWritable> handler = new InvocationMessageConsumer(
+		objectsToCall);
 	TuplesWritable t = new TuplesWritable();
 	InvocationMessage invocationMessage = new InvocationMessageConsumer.InvocationMessage(
 		String.class, String.class.getMethod("concat", String.class),
@@ -73,7 +75,8 @@ public class InvocationMessageConsumerTest {
     @Test
     public void testResultNotSerializable() throws Exception {
 	Object[] objectsToCall = new Object[] { new ResultNotSerializable() };
-	Handler<TuplesWritable> handler = new InvocationMessageConsumer(objectsToCall);
+	Handler<TuplesWritable> handler = new InvocationMessageConsumer(
+		objectsToCall);
 	TuplesWritable t = new TuplesWritable();
 	InvocationMessage invocationMessage = new InvocationMessageConsumer.InvocationMessage(
 		ResultNotSerializable.class, ResultNotSerializable.class
@@ -87,7 +90,8 @@ public class InvocationMessageConsumerTest {
     @Test
     public void testException() throws Exception {
 	Object[] objectsToCall = new Object[] { new ThrowException() };
-	Handler<TuplesWritable> handler = new InvocationMessageConsumer(objectsToCall);
+	Handler<TuplesWritable> handler = new InvocationMessageConsumer(
+		objectsToCall);
 	TuplesWritable t = new TuplesWritable();
 	InvocationMessage invocationMessage = new InvocationMessageConsumer.InvocationMessage(
 		ThrowException.class, ThrowException.class.getMethod("foo"),
@@ -101,12 +105,14 @@ public class InvocationMessageConsumerTest {
 	assert tupleValue instanceof RuntimeException;
 	RuntimeException exception = (RuntimeException) tupleValue;
 	assert exception.getMessage().equals("foo bar");
+	System.out.println("InvocationMessageConsumerTest.testException()");
     }
 
     @Test
     public void testVoid() throws Exception {
 	Object[] objectsToCall = new Object[] { new VoidClass() };
-	Handler<TuplesWritable> handler = new InvocationMessageConsumer(objectsToCall);
+	Handler<TuplesWritable> handler = new InvocationMessageConsumer(
+		objectsToCall);
 	TuplesWritable t = new TuplesWritable();
 	InvocationMessage invocationMessage = new InvocationMessageConsumer.InvocationMessage(
 		VoidClass.class, VoidClass.class.getMethod("foo"),

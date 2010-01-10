@@ -6,6 +6,8 @@ targetCompatibility = 1.6
 
 version='0.1-dev'
 
+testSrcDirNames=['test/java','it/java']
+
 repositories { 
     mavenCentral() 
 }

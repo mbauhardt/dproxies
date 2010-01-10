@@ -1,12 +1,7 @@
 package dproxies.client;
 
-import java.io.InputStream;
-import java.io.ObjectInput;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutput;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
-import java.net.Socket;
+import java.io.DataInput;
+import java.io.DataOutput;
 
 import dproxies.HandlerPool;
 import dproxies.handler.Handler;
@@ -14,29 +9,29 @@ import dproxies.handler.InfiniteReader;
 import dproxies.handler.impl.InvocationMessageConsumer;
 import dproxies.handler.impl.ResponseWriter;
 import dproxies.handler.impl.SocketCloseHandler;
+import dproxies.tuple.Tuples;
 import dproxies.tuple.TuplesWritable;
 
 public class ObjectCallHandler<T> extends SocketCloseHandler {
 
-    private final T _objectToCall;
+    private final T _delegate;
 
     public ObjectCallHandler(T objectToCall) {
-	_objectToCall = objectToCall;
+	_delegate = objectToCall;
+    }
+
+    public ObjectCallHandler(Handler<Tuples> prev, T objectToCall) {
+	super(prev);
+	_delegate = objectToCall;
     }
 
     @Override
-    protected boolean handlePreviousSuccess(Socket socket) throws Exception {
-
-	// create in
-	InputStream inputStream = socket.getInputStream();
-	ObjectInput in = new ObjectInputStream(inputStream);
-
-	// create out
-	OutputStream outputStream = socket.getOutputStream();
-	ObjectOutput out = new ObjectOutputStream(outputStream);
+    protected boolean handlePreviousSuccess(Tuples tuples) throws Exception {
+	DataInput in = (DataInput) tuples.getTuple("in").getTupleValue();
+	DataOutput out = (DataOutput) tuples.getTuple("out").getTupleValue();
 
 	Handler<TuplesWritable> handler = new InvocationMessageConsumer(
-		new Object[] { _objectToCall });
+		new Object[] { _delegate });
 	handler = new ResponseWriter(handler, out);
 	HandlerPool<TuplesWritable> requestPool = new HandlerPool<TuplesWritable>(
 		10, handler);

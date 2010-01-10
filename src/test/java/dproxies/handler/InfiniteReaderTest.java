@@ -1,8 +1,8 @@
 package dproxies.handler;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.io.Serializable;
@@ -10,7 +10,6 @@ import java.io.Serializable;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.mockito.internal.verification.Times;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
@@ -37,9 +36,9 @@ public class InfiniteReaderTest {
 
 	PipedInputStream inPipe = new PipedInputStream();
 	PipedOutputStream outPipe = new PipedOutputStream(inPipe);
-	ObjectOutputStream out = new ObjectOutputStream(outPipe);
+	DataOutputStream out = new DataOutputStream(outPipe);
 
-	ObjectInputStream in = new ObjectInputStream(inPipe);
+	DataInputStream in = new DataInputStream(inPipe);
 
 	writeRequest(out);
 	writeRequest(out);
@@ -58,17 +57,17 @@ public class InfiniteReaderTest {
 
     }
 
-    private void writeResponse(ObjectOutputStream out) throws IOException {
+    private void writeResponse(DataOutputStream out) throws IOException {
 	out.write(BytePrefixWriter.RESPONSE);
 	TuplesWritable testTuple = new TuplesWritable();
 	testTuple.addTuple(new Tuple<Serializable>("foo", "bar"));
-	testTuple.writeExternal(out);
+	testTuple.write(out);
     }
 
-    private void writeRequest(ObjectOutputStream out) throws IOException {
+    private void writeRequest(DataOutputStream out) throws IOException {
 	out.write(BytePrefixWriter.REQUEST);
 	TuplesWritable testTuple = new TuplesWritable();
 	testTuple.addTuple(new Tuple<Serializable>("foo", "bar"));
-	testTuple.writeExternal(out);
+	testTuple.write(out);
     }
 }

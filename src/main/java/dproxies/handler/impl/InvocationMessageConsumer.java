@@ -6,8 +6,7 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.io.Serializable;
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import dproxies.handler.Handler;
@@ -80,7 +79,7 @@ public class InvocationMessageConsumer extends TuplesWritableHandler {
     private static final Logger LOG = LogFactory
 	    .getLogger(InvocationMessageConsumer.class);
 
-    private Map<String, Object> _objectsToCall = new HashMap<String, Object>();
+    private final Object[] _delegates;
 
     public InvocationMessageConsumer(Object[] objectsToCall) {
 	this(null, objectsToCall);
@@ -89,11 +88,7 @@ public class InvocationMessageConsumer extends TuplesWritableHandler {
     public InvocationMessageConsumer(Handler<TuplesWritable> prev,
 	    Object[] objectsToCall) {
 	super(prev);
-	for (Object object : objectsToCall) {
-	    String name = object.getClass().getInterfaces()[0].getName();
-	    LOG.info("register object: " + object.getClass().getName());
-	    _objectsToCall.put(name, object);
-	}
+	_delegates = objectsToCall;
     }
 
     @Override
@@ -102,16 +97,44 @@ public class InvocationMessageConsumer extends TuplesWritableHandler {
 	InvocationMessage invocationMessage = (InvocationMessage) invocationTuple
 		.getTupleValue();
 
-	Class<?> clazz = invocationMessage.getClazz();
-	Class<?> interfaceClass = clazz.getInterfaces()[0];
 	Method method = invocationMessage.getMethod();
-	Object[] arguments = invocationMessage.getArguments();
-	Object object = _objectsToCall.get(interfaceClass.getName());
-	boolean bit = false;
+	Class<?> declaringClass = method.getDeclaringClass();
+	Class<?>[] declaringInterfaces = declaringClass.getInterfaces();
+	Class<?>[] declaringClasses = new Class<?>[declaringInterfaces.length + 1];
+	System.arraycopy(declaringInterfaces, 0, declaringClasses, 1,
+		declaringInterfaces.length);
+	declaringClasses[0] = declaringClass;
 
-	if (object != null) {
+	Object[] arguments = invocationMessage.getArguments();
+
+	Object delegate = null;
+	for (int i = 0; i < declaringClasses.length; i++) {
+	    for (int j = 0; j < _delegates.length; j++) {
+		if (declaringClasses[i].isAssignableFrom(_delegates[j]
+			.getClass())) {
+		    delegate = _delegates[j];
+		    break;
+		}
+	    }
+	}
+
+	boolean bit = false;
+	if (delegate != null) {
 	    try {
-		Object result = method.invoke(object, arguments);
+		if (LOG.isLoggable(Level.FINE)) {
+		    LOG.fine("call method [" + method.getName()
+			    + "] on object [" + delegate.getClass().getName()
+			    + "]");
+		}
+		// reload method
+		Method[] methods = delegate.getClass().getMethods();
+		for (Method method2 : methods) {
+		    if (method2.getName().equals(method.getName())) {
+			method = method2;
+			break;
+		    }
+		}
+		Object result = method.invoke(delegate, arguments);
 		if (result != null) {
 		    if (result instanceof Serializable) {
 			t.addTuple(new Tuple<Serializable>("result",
@@ -124,17 +147,17 @@ public class InvocationMessageConsumer extends TuplesWritableHandler {
 		    }
 		}
 	    } catch (Throwable e) {
-		LOG.info("method call [" + method.getName() + "] on object ["
-			+ clazz.getName() + "] throws exception ["
-			+ e.getCause() + "].");
+		LOG.log(Level.WARNING, "method call [" + method.getName()
+			+ "] on object [" + delegate.getClass().getName()
+			+ "] throws exception [" + e.getCause() + "].", e);
 		t.addTuple(new Tuple<Serializable>("exception", e.getCause()));
 	    }
 	} else {
 	    LOG.severe("dont call method [" + method.getName()
-		    + "] because object to call [" + clazz.getName()
+		    + "] because object to call ["
+		    + method.getDeclaringClass().getName()
 		    + "] is not configured.");
 	}
 	return bit;
     }
-
 }

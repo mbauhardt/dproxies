@@ -1,9 +1,6 @@
 package dproxies.server;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutput;
-import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.concurrent.BlockingQueue;
 import java.util.logging.Logger;
@@ -11,6 +8,7 @@ import java.util.logging.Logger;
 import dproxies.handler.Handler;
 import dproxies.handler.impl.AbstractRegistrationHandler;
 import dproxies.log.LogFactory;
+import dproxies.tuple.Tuples;
 import dproxies.util.AlreadyRegisteredException;
 import dproxies.util.ClientRegistration;
 
@@ -23,7 +21,7 @@ public class ServerRegistrationHandler extends AbstractRegistrationHandler {
 
     private final Object _mutex = new Object();
 
-    public ServerRegistrationHandler(Handler<Socket> prev,
+    public ServerRegistrationHandler(Handler<Tuples> prev,
 	    ClientRegistration clientRegistration) {
 	super(prev);
 	_clientRegistration = clientRegistration;
@@ -46,19 +44,15 @@ public class ServerRegistrationHandler extends AbstractRegistrationHandler {
 		BlockingQueue<Socket> queue = _clientRegistration.register(id);
 		queue.add(_socket);
 		bit = true;
-		ObjectOutput out = new ObjectOutputStream(_socket
-			.getOutputStream());
 		RegistrationResponse response = new RegistrationResponse(id,
 			"registration successfully. welcome '" + id + "'.",
 			true);
-		response.writeExternal(out);
+		response.write(_out);
 		LOG.info("registration success for id: " + id);
 	    } else {
-		ObjectOutput out = new ObjectOutputStream(_socket
-			.getOutputStream());
 		RegistrationResponse response = new RegistrationResponse(id,
 			"registration fails '" + id + "'.", false);
-		response.writeExternal(out);
+		response.write(_out);
 		LOG.warning("registration fails for id: " + id);
 	    }
 	}
@@ -67,8 +61,7 @@ public class ServerRegistrationHandler extends AbstractRegistrationHandler {
 
     private String readClientName() throws IOException, ClassNotFoundException {
 	RegistrationRequest registrationRequest = new RegistrationRequest();
-	registrationRequest.readExternal(new ObjectInputStream(_socket
-		.getInputStream()));
+	registrationRequest.read(_in);
 	return registrationRequest.getName();
     }
 

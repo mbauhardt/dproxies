@@ -1,5 +1,6 @@
 package dproxies.handler.impl;
 
+import java.io.DataOutput;
 import java.io.ObjectOutput;
 
 import dproxies.handler.Handler;
@@ -16,13 +17,13 @@ public abstract class BytePrefixWriter extends TuplesWriter {
 
     protected final byte _type;
 
-    public BytePrefixWriter(Handler<TuplesWritable> prev, ObjectOutput out,
+    public BytePrefixWriter(Handler<TuplesWritable> prev, DataOutput out,
 	    byte type) {
 	super(prev, out);
 	_type = type;
     }
 
-    public BytePrefixWriter(ObjectOutput out, byte type) {
+    public BytePrefixWriter(DataOutput out, byte type) {
 	super(out);
 	_type = type;
     }

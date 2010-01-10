@@ -1,14 +1,15 @@
 package dproxies.handler;
 
+import java.io.DataInput;
 import java.io.ObjectInput;
 
 import dproxies.tuple.TuplesWritable;
 
 public class TuplesReader extends TuplesWritableHandler {
 
-    protected final ObjectInput _in;
+    protected final DataInput _in;
 
-    public TuplesReader(ObjectInput in) {
+    public TuplesReader(DataInput in) {
 	_in = in;
     }
 
@@ -19,7 +20,7 @@ public class TuplesReader extends TuplesWritableHandler {
 
     @Override
     protected boolean handlePreviousSuccess(TuplesWritable t) throws Exception {
-	t.readExternal(_in);
+	t.read(_in);
 	return true;
     }
 

@@ -9,6 +9,8 @@ import java.util.logging.Logger;
 import dproxies.HandlerPool;
 import dproxies.handler.Handler;
 import dproxies.log.LogFactory;
+import dproxies.tuple.Tuple;
+import dproxies.tuple.Tuples;
 
 public class Client implements Handler<SocketAddress> {
 
@@ -16,15 +18,15 @@ public class Client implements Handler<SocketAddress> {
 
     private static final int TIMEOUT = 10000;
     private HandlerPool<SocketAddress> _serverPool;
-    private HandlerPool<Socket> _socketHandlerPool;
+    private HandlerPool<Tuples> _socketHandlerPool;
     private SocketAddress _socketAddress;
 
     private Socket _socket;
 
-    public Client(String host, int port, Handler<Socket> socketHandler) {
+    public Client(String host, int port, Handler<Tuples> socketHandler) {
 	_socketAddress = new InetSocketAddress(host, port);
 	_serverPool = new HandlerPool<SocketAddress>(1, this);
-	_socketHandlerPool = new HandlerPool<Socket>(10, socketHandler);
+	_socketHandlerPool = new HandlerPool<Tuples>(10, socketHandler);
     }
 
     public void start() {
@@ -41,7 +43,9 @@ public class Client implements Handler<SocketAddress> {
 	_socket = new Socket();
 	LOG.info("connect to adress: " + t);
 	_socket.connect(t, TIMEOUT);
-	return _socketHandlerPool.handle(_socket);
+	Tuples tuples = new Tuples();
+	tuples.addTuple(new Tuple<Object>("socket", _socket));
+	return _socketHandlerPool.handle(tuples);
     }
 
 }

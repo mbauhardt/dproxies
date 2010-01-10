@@ -21,6 +21,10 @@ public abstract class PipedHandler<T> extends AbstractHandler<T> {
 	return false;
     }
 
+    public Handler<T> getPrev() {
+	return _prev;
+    }
+
     protected abstract boolean handlePreviousSuccess(T t) throws Exception;
 
 }

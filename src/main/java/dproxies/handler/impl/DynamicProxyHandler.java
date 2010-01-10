@@ -1,20 +1,17 @@
 package dproxies.handler.impl;
 
-import java.io.InputStream;
-import java.io.ObjectInput;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutput;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
+import java.io.DataInput;
+import java.io.DataOutput;
 import java.lang.reflect.Proxy;
 import java.net.Socket;
-import java.util.concurrent.BlockingQueue;
 import java.util.logging.Logger;
 
 import dproxies.HandlerPool;
 import dproxies.handler.Handler;
 import dproxies.handler.InfiniteReader;
 import dproxies.log.LogFactory;
+import dproxies.tuple.Tuple;
+import dproxies.tuple.Tuples;
 import dproxies.tuple.TuplesWritable;
 import dproxies.util.ProxyBox;
 import dproxies.util.ProxyMethodCallResult;
@@ -23,25 +20,27 @@ public class DynamicProxyHandler<T> extends SocketCloseHandler {
 
     private static final Logger LOG = LogFactory
 	    .getLogger(DynamicProxyHandler.class);
-    private final Class<T> _clazz;
-    private final ProxyBox<T> _proxies;
+    private final Class<T> _interfaceClass;
 
-    public DynamicProxyHandler(Class<T> t, ProxyBox<T> proxies) {
-	_clazz = t;
-	_proxies = proxies;
+    public DynamicProxyHandler(Class<T> interfaceClass) {
+	_interfaceClass = interfaceClass;
+    }
+
+    public DynamicProxyHandler(Handler<Tuples> prev, Class<T> interfaceClass) {
+	super(prev);
+	_interfaceClass = interfaceClass;
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    protected boolean handlePreviousSuccess(Socket socket) throws Exception {
+    protected boolean handlePreviousSuccess(Tuples tuples) throws Exception {
 
-	// create in
-	InputStream inputStream = socket.getInputStream();
-	ObjectInput in = new ObjectInputStream(inputStream);
+	Tuple<Object> tuple = tuples.getTuple("proxyBox");
+	ProxyBox<T> proxies = (ProxyBox<T>) tuple.getTupleValue();
 
-	// create out
-	OutputStream outputStream = socket.getOutputStream();
-	ObjectOutput out = new ObjectOutputStream(outputStream);
+	Socket socket = (Socket) tuples.getTuple("socket").getTupleValue();
+	DataInput in = (DataInput) tuples.getTuple("in").getTupleValue();
+	DataOutput out = (DataOutput) tuples.getTuple("out").getTupleValue();
 
 	ProxyMethodCallResult box = new ProxyMethodCallResult();
 
@@ -53,13 +52,15 @@ public class DynamicProxyHandler<T> extends SocketCloseHandler {
 
 	// create proxy
 	LOG.info("create a java dynamic proxy to send/receive messages: "
-		+ _clazz.getName());
+		+ _interfaceClass.getName());
 	InvocationMessageProducer iHandler = new InvocationMessageProducer(box,
 		pool);
 	T proxy = (T) Proxy.newProxyInstance(Thread.currentThread()
-		.getContextClassLoader(), new Class[] { _clazz }, iHandler);
-	BlockingQueue<T> queue = _proxies.register(socket.toString());
-	queue.add(proxy);
+		.getContextClassLoader(), new Class[] { _interfaceClass },
+		iHandler);
+	proxies.register(socket.toString());
+	proxies.addToBox(socket.toString(), proxy);
+	// queue.add(proxy);
 
 	// create response reader to read the proxy method return value
 	LOG.info("create respone handler");

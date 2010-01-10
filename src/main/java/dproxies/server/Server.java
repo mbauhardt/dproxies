@@ -10,6 +10,9 @@ import java.util.logging.Logger;
 import dproxies.HandlerPool;
 import dproxies.handler.Handler;
 import dproxies.log.LogFactory;
+import dproxies.tuple.Tuple;
+import dproxies.tuple.Tuples;
+import dproxies.util.ProxyBox;
 
 public class Server implements Handler<Integer> {
 
@@ -23,12 +26,14 @@ public class Server implements Handler<Integer> {
 
     private boolean _closingEvent;
 
-    private HandlerPool<Socket> _socketHandlerPool;
+    private HandlerPool<Tuples> _socketHandlerPool;
 
-    public Server(int port, Handler<Socket> socketHandler) {
+    private ProxyBox<Object> _proxies = new ProxyBox<Object>();
+
+    public Server(int port, Handler<Tuples> socketHandler) {
 	_port = port;
 	_serverPool = new HandlerPool<Integer>(1, this);
-	_socketHandlerPool = new HandlerPool<Socket>(10, socketHandler);
+	_socketHandlerPool = new HandlerPool<Tuples>(10, socketHandler);
     }
 
     public void start() throws IOException {
@@ -49,7 +54,10 @@ public class Server implements Handler<Integer> {
 	try {
 	    while ((socket = _serverSocket.accept()) != null) {
 		LOG.info("accept new socket connection: " + socket);
-		_socketHandlerPool.handle(socket);
+		Tuples tuples = new Tuples();
+		tuples.addTuple(new Tuple<Object>("socket", socket));
+		tuples.addTuple(new Tuple<Object>("proxyBox", _proxies));
+		_socketHandlerPool.handle(tuples);
 	    }
 	} catch (SocketException e) {
 	    if (_closingEvent) {
@@ -61,6 +69,10 @@ public class Server implements Handler<Integer> {
 	    }
 	}
 	return bit;
+    }
+
+    public Object[] getAllProxies() {
+	return _proxies.getAllProxies();
     }
 
 }

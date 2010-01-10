@@ -6,10 +6,6 @@ import java.io.DataOutput;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectInput;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutput;
-import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.net.ServerSocket;
@@ -20,13 +16,16 @@ import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import dproxies.Ports;
+import dproxies.handler.Handler;
 import dproxies.handler.impl.AbstractRegistrationHandler;
 import dproxies.handler.impl.BytePrefixWriter;
+import dproxies.handler.impl.IOHandler;
 import dproxies.handler.impl.InvocationMessageConsumer;
 import dproxies.handler.impl.AbstractRegistrationHandler.RegistrationRequest;
 import dproxies.handler.impl.AbstractRegistrationHandler.RegistrationResponse;
 import dproxies.handler.impl.InvocationMessageConsumer.InvocationMessage;
 import dproxies.tuple.Tuple;
+import dproxies.tuple.Tuples;
 import dproxies.tuple.TuplesWritable;
 import dproxies.util.Generator;
 
@@ -49,8 +48,9 @@ public class ClientTest {
     @Test(groups = { "handshake" })
     public void testSuccessfullyHandshake() throws Exception {
 	// client handshake
-	Client client = new Client("127.0.0.1", _testPort,
-		new ClientHandshakeHandler(new Generator()));
+	Handler<Tuples> handler = new IOHandler();
+	handler = new ClientHandshakeHandler(handler, new Generator());
+	Client client = new Client("127.0.0.1", _testPort, handler);
 	client.start();
 	_socket = _serverSocket.accept();
 
@@ -77,8 +77,9 @@ public class ClientTest {
     @Test(groups = { "handshake" })
     public void testServerHandshakeFails() throws Exception {
 	// client handshake
-	Client client = new Client("127.0.0.1", _testPort,
-		new ClientHandshakeHandler(new Generator()));
+	Handler<Tuples> handler = new IOHandler();
+	handler = new ClientHandshakeHandler(handler, new Generator());
+	Client client = new Client("127.0.0.1", _testPort, handler);
 	client.start();
 	_socket = _serverSocket.accept();
 
@@ -97,8 +98,9 @@ public class ClientTest {
     @Test(groups = { "handshake" })
     public void testClientHandshakeFails() throws Exception {
 	// client handshake
-	Client client = new Client("127.0.0.1", _testPort,
-		new ClientHandshakeHandler(new Generator()));
+	Handler<Tuples> handler = new IOHandler();
+	handler = new ClientHandshakeHandler(handler, new Generator());
+	Client client = new Client("127.0.0.1", _testPort, handler);
 	client.start();
 	_socket = _serverSocket.accept();
 
@@ -124,24 +126,26 @@ public class ClientTest {
 
     @Test(groups = { "registration" })
     public void testSuccessfullyRegistration() throws Exception {
-	Client client = new Client("127.0.0.1", _testPort,
-		new ClientRegistrationHandler("foo"));
+	Handler<Tuples> handler = new IOHandler();
+	handler = new ClientRegistrationHandler(handler, "foo");
+
+	Client client = new Client("127.0.0.1", _testPort, handler);
 	client.start();
 	_socket = _serverSocket.accept();
 
 	OutputStream outputStream = _socket.getOutputStream();
-	ObjectOutput out = new ObjectOutputStream(outputStream);
+	DataOutput out = new DataOutputStream(outputStream);
 	InputStream inputStream = _socket.getInputStream();
-	ObjectInput in = new ObjectInputStream(inputStream);
+	DataInput in = new DataInputStream(inputStream);
 
 	// read request
 	RegistrationRequest request = new AbstractRegistrationHandler.RegistrationRequest();
-	request.readExternal(in);
+	request.read(in);
 
 	// send response
 	RegistrationResponse response = new RegistrationResponse("foo",
 		"allowed", true);
-	response.writeExternal(out);
+	response.write(out);
 
 	assert request.getName().equals("foo");
 
@@ -149,39 +153,42 @@ public class ClientTest {
 
     @Test(groups = { "registration" })
     public void testRegistrationFails() throws Exception {
-	Client client = new Client("127.0.0.1", _testPort,
-		new ClientRegistrationHandler("foo"));
+	Handler<Tuples> handler = new IOHandler();
+	handler = new ClientRegistrationHandler(handler, "foo");
+	Client client = new Client("127.0.0.1", _testPort, handler);
 	client.start();
 	_socket = _serverSocket.accept();
 
 	OutputStream outputStream = _socket.getOutputStream();
-	ObjectOutput out = new ObjectOutputStream(outputStream);
+	DataOutput out = new DataOutputStream(outputStream);
 	InputStream inputStream = _socket.getInputStream();
-	ObjectInput in = new ObjectInputStream(inputStream);
+	DataInput in = new DataInputStream(inputStream);
 
 	// read request
 	RegistrationRequest request = new AbstractRegistrationHandler.RegistrationRequest();
-	request.readExternal(in);
+	request.read(in);
 
 	// send response
 	RegistrationResponse response = new RegistrationResponse("foo",
 		"not allowed", false);
-	response.writeExternal(out);
+	response.write(out);
 
 	assert request.getName().equals("foo");
     }
 
     @Test(groups = { "objectCall" })
     public void testObjectCall() throws Exception {
-	Client client = new Client("127.0.0.1", _testPort,
-		new ObjectCallHandler<String>("foo"));
+	Handler<Tuples> handler = new IOHandler();
+	handler = new ObjectCallHandler<String>(handler, "foo");
+
+	Client client = new Client("127.0.0.1", _testPort, handler);
 	client.start();
 	_socket = _serverSocket.accept();
 
 	OutputStream outputStream = _socket.getOutputStream();
-	ObjectOutput out = new ObjectOutputStream(outputStream);
+	DataOutput out = new DataOutputStream(outputStream);
 	InputStream inputStream = _socket.getInputStream();
-	ObjectInput in = new ObjectInputStream(inputStream);
+	DataInput in = new DataInputStream(inputStream);
 
 	out.writeByte(BytePrefixWriter.REQUEST);
 	InvocationMessage invocationMessage = new InvocationMessageConsumer.InvocationMessage(
@@ -191,13 +198,12 @@ public class ClientTest {
 	requestTuple.addTuple(new Tuple<Serializable>("id", "myId"));
 	requestTuple.addTuple(new Tuple<Serializable>("invocationMessage",
 		invocationMessage));
-	requestTuple.writeExternal(out);
-	out.flush();
+	requestTuple.write(out);
 
 	byte readByte = in.readByte();
 	assert readByte == BytePrefixWriter.RESPONSE;
 	TuplesWritable tuplesWritable = new TuplesWritable();
-	tuplesWritable.readExternal(in);
+	tuplesWritable.read(in);
 	Serializable tupleValue = tuplesWritable.getTuple("id").getTupleValue();
 	assert tupleValue.equals("myId");
 	tupleValue = tuplesWritable.getTuple("result").getTupleValue();

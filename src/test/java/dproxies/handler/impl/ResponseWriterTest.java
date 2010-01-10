@@ -1,5 +1,7 @@
 package dproxies.handler.impl;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PipedInputStream;
@@ -21,18 +23,18 @@ public class ResponseWriterTest {
 	PipedInputStream pipedInputStream = new PipedInputStream();
 	PipedOutputStream pipedOutputStream = new PipedOutputStream(
 		pipedInputStream);
-	ObjectOutputStream out = new ObjectOutputStream(pipedOutputStream);
+	DataOutputStream out = new DataOutputStream(pipedOutputStream);
 	Handler<TuplesWritable> handler = new ResponseWriter(out);
 	TuplesWritable t = new TuplesWritable();
 	t.addTuple(new Tuple<Serializable>("foo", "bar"));
 	handler.handle(t);
 
-	ObjectInputStream objectInputStream = new ObjectInputStream(
+	DataInputStream objectInputStream = new DataInputStream(
 		pipedInputStream);
 	byte readByte = objectInputStream.readByte();
 	assert readByte == BytePrefixWriter.RESPONSE;
 	TuplesWritable other = new TuplesWritable();
-	other.readExternal(objectInputStream);
+	other.read(objectInputStream);
 	assert t.equals(other);
 
 	out.close();
