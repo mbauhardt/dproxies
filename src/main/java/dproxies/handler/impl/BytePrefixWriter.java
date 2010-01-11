@@ -1,7 +1,6 @@
 package dproxies.handler.impl;
 
 import java.io.DataOutput;
-import java.io.ObjectOutput;
 
 import dproxies.handler.Handler;
 import dproxies.handler.TuplesWriter;

@@ -18,7 +18,6 @@ import dproxies.handler.Handler;
 import dproxies.handler.impl.AbstractHandshakeHandler;
 import dproxies.handler.impl.AbstractRegistrationHandler;
 import dproxies.handler.impl.BytePrefixWriter;
-import dproxies.handler.impl.DynamicProxyHandler;
 import dproxies.handler.impl.IOHandler;
 import dproxies.handler.impl.AbstractHandshakeHandler.Handshake;
 import dproxies.handler.impl.AbstractRegistrationHandler.RegistrationRequest;
